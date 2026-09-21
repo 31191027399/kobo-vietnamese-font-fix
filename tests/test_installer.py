@@ -41,6 +41,24 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(details["fonts"], 16)
         self.assertEqual(details["version"], "0.6.0")
 
+    def test_multiple_kobos_require_an_explicit_device_choice(self):
+        with tempfile.TemporaryDirectory() as value:
+            root = Path(value)
+            first = root / "Kobo One"
+            second = root / "Kobo Two"
+            for device, model, version in ((first, "N250", "4.38.23697"), (second, "N905", "4.41.23145")):
+                (device / ".kobo").mkdir(parents=True)
+                (device / ".kobo" / "version").write_text(f"{model},{version},{version}\n")
+            with mock.patch.object(core, "_device_candidates", return_value=[first, second]):
+                devices = core.detected_devices()
+                self.assertEqual([item["name"] for item in devices], ["Kobo One", "Kobo Two"])
+                with self.assertRaisesRegex(core.InstallerError, "More than one Kobo"):
+                    core.require_device()
+                self.assertEqual(core.require_device(str(second)), second)
+                status = core.device_status(str(second))
+            self.assertEqual(status["path"], str(second))
+            self.assertEqual(len(status["devices"]), 2)
+
     def test_uploaded_nickelmenu_is_preserved_and_gets_vietnamese_fonts(self):
         with tempfile.TemporaryDirectory() as value:
             root = Path(value)
@@ -56,11 +74,14 @@ class InstallerTests(unittest.TestCase):
                     archive.addfile(info, io.BytesIO(payload))
             package = root / "repaired-KoboRoot.tgz"
             metadata = root / "nickelmenu-package.json"
+            checksum = root / "KoboRoot.tgz.sha256"
             with mock.patch.object(core, "NICKELMENU_PACKAGE", package), mock.patch.object(
                 core, "NICKELMENU_METADATA", metadata
+            ), mock.patch.object(
+                core, "NICKELMENU_CHECKSUM", checksum
             ):
                 result = core.repair_uploaded_nickelmenu(
-                    "NickelMenu-v-test.KoboRoot.tgz",
+                    "KoboRoot.tgz",
                     base64.b64encode(source.read_bytes()).decode("ascii"),
                     "v-test",
                 )
@@ -69,6 +90,33 @@ class InstallerTests(unittest.TestCase):
                 self.assertEqual(archive.extractfile("usr/local/Kobo/imageformats/libnm.so").read(), b"uploaded-nickelmenu-library")
                 self.assertEqual(archive.extractfile("mnt/onboard/.adds/nm/old-font.txt").read(), b"kept")
             self.assertEqual(__import__("json").loads(metadata.read_text())["version"], "v-test")
+
+    def test_uploaded_custom_koboroot_gets_fonts_without_nickelmenu(self):
+        with tempfile.TemporaryDirectory() as value:
+            root = Path(value)
+            source = root / "KoboRoot.tgz"
+            with tarfile.open(source, "w:gz") as archive:
+                payload = b"custom-patch-content"
+                info = tarfile.TarInfo("etc/custom-patch.conf")
+                info.size = len(payload)
+                archive.addfile(info, io.BytesIO(payload))
+            package = root / "repaired-KoboRoot.tgz"
+            metadata = root / "koboroot-package.json"
+            checksum = root / "KoboRoot.tgz.sha256"
+            with mock.patch.object(core, "NICKELMENU_PACKAGE", package), mock.patch.object(
+                core, "NICKELMENU_METADATA", metadata
+            ), mock.patch.object(
+                core, "NICKELMENU_CHECKSUM", checksum
+            ):
+                result = core.repair_uploaded_koboroot(
+                    "KoboRoot.tgz", base64.b64encode(source.read_bytes()).decode("ascii"), "custom patch"
+                )
+                self.assertEqual(core.validate_font_overlay_archive(package)["fonts"], 16)
+                with self.assertRaises(core.InstallerError):
+                    core.validate_nickelmenu_archive(package)
+            self.assertEqual(result["version"], "custom KoboRoot.tgz")
+            with tarfile.open(package, "r:gz") as archive:
+                self.assertEqual(archive.extractfile("etc/custom-patch.conf").read(), b"custom-patch-content")
 
     def test_existing_device_install_flow(self):
         with tempfile.TemporaryDirectory() as value:

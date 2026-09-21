@@ -15,7 +15,11 @@ No NickelMenu runtime code is changed. The added fonts are placed in Kobo’s Qt
 
 The Advanced upload control can repair a supplied NickelMenu `KoboRoot.tgz` without Docker. It accepts only a gzip tar archive containing NickelMenu’s library and documentation, refuses unsafe paths, links, and oversized extracted payloads, copies the original regular files unchanged, then replaces only the Qt font entries with the verified Vietnamese font set.
 
+The separate **KoboRoot.tgz only** control uses the same archive-safety checks but does not require NickelMenu files. It is intended for a custom package whose own behavior must remain unchanged; it overlays only the font entries.
+
 ## Installation behavior
+
+The local server identifies Kobo volumes by the presence of `.kobo/version`. It returns every detected device to the browser and requires an explicit volume path for install and eject operations whenever more than one Kobo is connected.
 
 - NickelMenu backs up the existing `KoboRoot.tgz`, then stages the verified font package in `.kobo/`.
 - KOReader updates `.adds/koreader` while preserving settings, history, plugins, and book data; configures the direct launcher plus a separate `kobo-installer` NickelMenu file with Dark Mode, Wi-Fi, rescan, and reboot shortcuts; and removes the stale KFMon generator configuration that causes `/tmp/kfmon-ipc.ctl` errors.

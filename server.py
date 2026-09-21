@@ -8,7 +8,7 @@ import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from installer import core
 
@@ -46,7 +46,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/api/status":
-            self._json(HTTPStatus.OK, {"ok": True, "status": core.device_status()})
+            selected = parse_qs(parsed.query).get("device", [None])[0]
+            self._json(HTTPStatus.OK, {"ok": True, "status": core.device_status(selected)})
             return
         relative = "index.html" if parsed.path == "/" else parsed.path.lstrip("/")
         target = (WEB / relative).resolve()
@@ -79,21 +80,25 @@ class Handler(BaseHTTPRequestHandler):
                     result = core.repair_uploaded_nickelmenu(
                         body.get("filename", ""), body.get("archiveBase64", ""), body.get("version", "")
                     )
+                elif self.path == "/api/repair-koboroot-upload":
+                    result = core.repair_uploaded_koboroot(
+                        body.get("filename", ""), body.get("archiveBase64", ""), body.get("version", "")
+                    )
                 elif self.path == "/api/install":
                     components = body.get("components")
                     if not isinstance(components, list):
                         raise core.InstallerError("components must be a list.")
-                    result = core.install_selected(components)
+                    result = core.install_selected(components, body.get("devicePath"))
                 elif self.path == "/api/eject":
-                    result = core.safely_eject()
+                    result = core.safely_eject(body.get("devicePath"))
                 else:
                     self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Unknown action."})
                     return
             finally:
                 ACTION_LOCK.release()
-            self._json(HTTPStatus.OK, {"ok": True, "result": result, "status": core.device_status()})
+            self._json(HTTPStatus.OK, {"ok": True, "result": result, "status": core.device_status(body.get("devicePath"))})
         except (core.InstallerError, json.JSONDecodeError, ValueError) as exc:
-            self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": str(exc), "status": core.device_status()})
+            self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": str(exc), "status": core.device_status(body.get("devicePath") if "body" in locals() else None)})
         except Exception as exc:
             self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"ok": False, "error": f"Unexpected error: {exc}"})
 

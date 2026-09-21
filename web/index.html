@@ -19,6 +19,9 @@
         <div>
           <strong id="device-title">Checking for Kobo…</strong>
           <p id="device-detail">Connect the device by USB and tap Connect.</p>
+          <label id="device-selector-wrap" class="device-selector" hidden>Choose Kobo
+            <select id="device-select" aria-label="Choose Kobo"></select>
+          </label>
         </div>
         <button id="refresh" class="button secondary compact" type="button">Check Kobo</button>
       </div>
@@ -81,6 +84,13 @@
           <label class="file-picker" for="nickelmenu-upload">Choose KoboRoot.tgz<input id="nickelmenu-upload" type="file" accept=".tgz,application/gzip"></label>
           <label class="version-label" for="nickelmenu-version">NickelMenu version <input id="nickelmenu-version" type="text" maxlength="64" placeholder="for example, 0.6.0"></label>
           <button id="repair-upload" class="button secondary" type="button" disabled>Repair uploaded package</button>
+        </section>
+        <section class="upload-section">
+          <h2>Repair a KoboRoot.tgz only</h2>
+          <p>Use this for a custom KoboRoot.tgz that is not NickelMenu. It keeps every non-font file unchanged and adds the Vietnamese fonts. It does not install or update NickelMenu.</p>
+          <label class="file-picker" for="koboroot-upload">Choose KoboRoot.tgz<input id="koboroot-upload" type="file" accept=".tgz,application/gzip"></label>
+          <label class="version-label" for="koboroot-version">Package label <input id="koboroot-version" type="text" maxlength="64" placeholder="for example, custom font patch"></label>
+          <button id="repair-koboroot-upload" class="button secondary" type="button" disabled>Repair KoboRoot.tgz only</button>
         </section>
       </div>
     </details>

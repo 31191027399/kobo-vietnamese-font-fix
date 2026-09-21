@@ -24,6 +24,7 @@ NICKELMENU_SOURCE = VENDOR / "nickelmenu"
 VIETNAMESE_FONTS = VENDOR / "vietnamese-fonts"
 NICKELMENU_PACKAGE = BUILD / "KoboRoot.tgz"
 NICKELMENU_METADATA = BUILD / "nickelmenu-package.json"
+NICKELMENU_CHECKSUM = BUILD / "KoboRoot.tgz.sha256"
 KOREADER_PACKAGE = VENDOR / "koreader" / "koreader-kobo-v2026.07.1.zip"
 SIMPLEUI_SOURCE = VENDOR / "simpleui" / "simpleui.koplugin"
 NICKELTC_IMAGE = "ghcr.io/pgaskin/nickeltc:1.0"
@@ -62,17 +63,40 @@ def _device_candidates() -> list[Path]:
 
 
 def find_device() -> Path | None:
+    devices = detected_devices()
+    return Path(devices[0]["path"]) if devices else None
+
+
+def detected_devices() -> list[dict]:
+    devices = []
     for candidate in _device_candidates():
-        if (candidate / ".kobo" / "version").is_file():
-            return candidate
-    return None
+        if not (candidate / ".kobo" / "version").is_file():
+            continue
+        raw_version = (candidate / ".kobo" / "version").read_text(errors="replace")
+        model = raw_version.split(",", 1)[0].strip() or "Kobo"
+        version = firmware_version(candidate)
+        devices.append({
+            "path": str(candidate),
+            "name": candidate.name,
+            "model": model,
+            "firmware": version,
+            "firmwareSupported": firmware_supported(version),
+        })
+    return devices
 
 
-def require_device() -> Path:
-    device = find_device()
-    if device is None:
+def require_device(device_path: str | None = None) -> Path:
+    devices = detected_devices()
+    if not devices:
         raise InstallerError("No mounted Kobo was found. Connect the Kobo by USB and tap Connect.")
-    return device
+    if device_path:
+        for item in devices:
+            if item["path"] == device_path:
+                return Path(item["path"])
+        raise InstallerError("The selected Kobo is no longer connected. Choose a connected Kobo and try again.")
+    if len(devices) > 1:
+        raise InstallerError("More than one Kobo is connected. Choose the Kobo you want to change.")
+    return Path(devices[0]["path"])
 
 
 def firmware_version(device: Path) -> str | None:
@@ -101,19 +125,30 @@ def _read_simpleui_version(path: Path) -> str | None:
     return match.group(1) if match else None
 
 
-def device_status() -> dict:
-    device = find_device()
+def device_status(device_path: str | None = None) -> dict:
+    devices = detected_devices()
+    device = None
+    selection_error = None
+    if device_path:
+        try:
+            device = require_device(device_path)
+        except InstallerError as exc:
+            selection_error = str(exc)
+    elif len(devices) == 1:
+        device = Path(devices[0]["path"])
     package = None
     package_error = None
     if NICKELMENU_PACKAGE.is_file():
         try:
-            package = validate_nickelmenu_archive(NICKELMENU_PACKAGE)
+            package = validate_font_overlay_archive(NICKELMENU_PACKAGE)
         except Exception as exc:  # status must remain available when a build is bad
             package_error = str(exc)
     if device is None:
         return {
             "mounted": False,
             "path": None,
+            "devices": devices,
+            "selectionError": selection_error,
             "firmware": None,
             "firmwareSupported": False,
             "koreader": None,
@@ -129,6 +164,8 @@ def device_status() -> dict:
     return {
         "mounted": True,
         "path": str(device),
+        "devices": devices,
+        "selectionError": selection_error,
         "firmware": version,
         "firmwareSupported": firmware_supported(version),
         "koreader": koreader_version,
@@ -138,7 +175,7 @@ def device_status() -> dict:
     }
 
 
-def validate_nickelmenu_archive(path: Path) -> dict:
+def validate_font_overlay_archive(path: Path, require_nickelmenu: bool = False) -> dict:
     if not path.is_file():
         raise InstallerError(f"NickelMenu package not found: {path}")
     expected_fonts = {font.name: sha256_file(font) for font in VIETNAMESE_FONTS.glob("*.ttf")}
@@ -163,19 +200,23 @@ def validate_nickelmenu_archive(path: Path) -> dict:
                 if extracted is None:
                     raise InstallerError(f"Could not read font entry: {member.name}")
                 found_fonts[PurePosixPath(clean).name] = hashlib.sha256(extracted.read()).hexdigest()
-    if not found_library or not found_doc:
+    if require_nickelmenu and (not found_library or not found_doc):
         raise InstallerError("The package is missing NickelMenu's library or documentation.")
     if found_fonts != expected_fonts:
         raise InstallerError("The package font payload does not match the 16 Vietnamese source fonts.")
     return {
         "sha256": sha256_file(path),
         "fonts": len(found_fonts),
-        "version": "0.6.0",
+        "version": "0.6.0" if found_library and found_doc else "custom KoboRoot.tgz",
         "size": path.stat().st_size,
     }
 
 
-def _validate_uploaded_nickelmenu(archive: tarfile.TarFile) -> list[tarfile.TarInfo]:
+def validate_nickelmenu_archive(path: Path) -> dict:
+    return validate_font_overlay_archive(path, require_nickelmenu=True)
+
+
+def _validate_uploaded_archive(archive: tarfile.TarFile, require_nickelmenu: bool) -> list[tarfile.TarInfo]:
     members = archive.getmembers()
     total_size = 0
     found_library = False
@@ -195,14 +236,14 @@ def _validate_uploaded_nickelmenu(archive: tarfile.TarFile) -> list[tarfile.TarI
             found_library = member.isfile() and member.size > 0
         elif clean == "mnt/onboard/.adds/nm/doc":
             found_doc = member.isfile() and member.size > 0
-    if not found_library or not found_doc:
+    if require_nickelmenu and (not found_library or not found_doc):
         raise InstallerError("The upload is not a NickelMenu KoboRoot.tgz package.")
     return members
 
 
-def repair_uploaded_nickelmenu(filename: str, archive_base64: str, version: str = "") -> dict:
-    if not isinstance(filename, str) or not filename.lower().endswith(".tgz"):
-        raise InstallerError("Choose a NickelMenu KoboRoot.tgz file.")
+def _repair_uploaded_archive(filename: str, archive_base64: str, version: str, require_nickelmenu: bool) -> dict:
+    if not isinstance(filename, str) or Path(filename).name != "KoboRoot.tgz":
+        raise InstallerError("Choose a file named KoboRoot.tgz.")
     if not isinstance(archive_base64, str):
         raise InstallerError("The uploaded archive is missing.")
     try:
@@ -218,7 +259,7 @@ def repair_uploaded_nickelmenu(filename: str, archive_base64: str, version: str 
     temporary = NICKELMENU_PACKAGE.with_suffix(".tgz.installing")
     try:
         with tarfile.open(fileobj=io.BytesIO(uploaded), mode="r:gz") as source:
-            members = _validate_uploaded_nickelmenu(source)
+            members = _validate_uploaded_archive(source, require_nickelmenu)
             with tarfile.open(temporary, "w:gz") as destination:
                 for member in members:
                     clean = member.name.removeprefix("./")
@@ -241,24 +282,32 @@ def repair_uploaded_nickelmenu(filename: str, archive_base64: str, version: str 
     except tarfile.TarError as exc:
         raise InstallerError("The uploaded file is not a readable gzip tar archive.") from exc
     try:
-        details = validate_nickelmenu_archive(temporary)
+        details = validate_font_overlay_archive(temporary, require_nickelmenu=require_nickelmenu)
         os.replace(temporary, NICKELMENU_PACKAGE)
     finally:
         if temporary.exists():
             temporary.unlink()
     selected_version = version.strip()[:64] if isinstance(version, str) else ""
     NICKELMENU_METADATA.write_text(json.dumps({
-        "source": "uploaded",
+        "source": "uploaded-nickelmenu" if require_nickelmenu else "uploaded-koboroot",
         "filename": Path(filename).name,
         "version": selected_version or "unspecified",
     }, indent=2) + "\n")
-    (BUILD / "KoboRoot.tgz.sha256").write_text(f"{details['sha256']}  KoboRoot.tgz\n")
+    NICKELMENU_CHECKSUM.write_text(f"{details['sha256']}  KoboRoot.tgz\n")
     return {
         **details,
-        "message": "The uploaded NickelMenu package now includes the 16 Vietnamese fonts.",
+        "message": "The uploaded package now includes the 16 Vietnamese fonts.",
         "sourceFile": Path(filename).name,
         "sourceVersion": selected_version or "unspecified",
     }
+
+
+def repair_uploaded_nickelmenu(filename: str, archive_base64: str, version: str = "") -> dict:
+    return _repair_uploaded_archive(filename, archive_base64, version, require_nickelmenu=True)
+
+
+def repair_uploaded_koboroot(filename: str, archive_base64: str, version: str = "") -> dict:
+    return _repair_uploaded_archive(filename, archive_base64, version, require_nickelmenu=False)
 
 
 def build_nickelmenu() -> dict:
@@ -313,7 +362,7 @@ def build_nickelmenu() -> dict:
         shutil.copy2(generated, temporary)
         os.replace(temporary, destination)
         details = validate_nickelmenu_archive(destination)
-        (BUILD / "KoboRoot.tgz.sha256").write_text(f"{details['sha256']}  KoboRoot.tgz\n")
+        NICKELMENU_CHECKSUM.write_text(f"{details['sha256']}  KoboRoot.tgz\n")
         if NICKELMENU_METADATA.exists():
             NICKELMENU_METADATA.unlink()
         return {
@@ -362,7 +411,7 @@ def install_nickelmenu(device: Path | None = None) -> dict:
     version = firmware_version(device)
     if not firmware_supported(version):
         raise InstallerError(f"Vietnamese NickelMenu supports Kobo firmware 4.x; detected {version or 'unknown'}.")
-    details = validate_nickelmenu_archive(NICKELMENU_PACKAGE)
+    details = validate_font_overlay_archive(NICKELMENU_PACKAGE)
     backup = _backup_paths(device, "before-nickelmenu", [".kobo/KoboRoot.tgz", ".adds/nm"])
     target = device / ".kobo" / "KoboRoot.tgz"
     _atomic_copy(NICKELMENU_PACKAGE, target)
@@ -545,11 +594,11 @@ def install_simpleui(device: Path | None = None) -> dict:
     }
 
 
-def install_selected(components: list[str]) -> dict:
+def install_selected(components: list[str], device_path: str | None = None) -> dict:
     allowed = {"nickelmenu", "koreader", "simpleui"}
     if not components or any(component not in allowed for component in components):
         raise InstallerError("Select at least one valid component.")
-    device = require_device()
+    device = require_device(device_path)
     results = {}
     for component in ("nickelmenu", "koreader", "simpleui"):
         if component not in components:
@@ -563,8 +612,8 @@ def install_selected(components: list[str]) -> dict:
     return {"message": "Selected components installed successfully.", "results": results}
 
 
-def safely_eject() -> dict:
-    device = require_device()
+def safely_eject(device_path: str | None = None) -> dict:
+    device = require_device(device_path)
     if os.environ.get("KOBO_MOUNT") or device.parent != Path("/Volumes"):
         return {"message": "Simulated Kobo released.", "path": str(device)}
     completed = subprocess.run(

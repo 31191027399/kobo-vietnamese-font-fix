@@ -12,6 +12,8 @@ h2 { margin-bottom:8px; font:700 1.55rem/1.18 Georgia,serif; }
 .device-card,.step-card,.console-card,.advanced { border:1px solid var(--line); border-radius:20px; background:rgba(255,253,248,.92); box-shadow:var(--shadow); }
 .device-card { display:grid; grid-template-columns:auto 1fr auto; gap:13px; align-items:center; padding:18px; }
 .device-card p { margin:2px 0 0; color:var(--muted); font-size:.9rem; }
+.device-selector { display:grid; gap:4px; margin-top:10px; color:var(--muted); font-size:.78rem; font-weight:800; }
+.device-selector select { width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:7px; background:#fff; color:var(--ink); font:inherit; font-weight:500; }
 .status-dot { width:12px; height:12px; border-radius:999px; background:#9aa39e; box-shadow:0 0 0 5px #eceae4; }
 .status-dot.connected { background:var(--green); box-shadow:0 0 0 5px var(--mint); }
 .status-dot.unsupported { background:var(--amber); box-shadow:0 0 0 5px #f7e8d5; }

@@ -1,5 +1,5 @@
 const $ = (selector) => document.querySelector(selector);
-const state = { status: null, busy: false };
+const state = { status: null, busy: false, selectedDevice: null };
 const allComponents = ["nickelmenu", "koreader", "simpleui"];
 
 function setLog(message, kind = "ready") {
@@ -12,6 +12,7 @@ function setLog(message, kind = "ready") {
 function formatResult(action, result) {
   if (action === "build") return "The Vietnamese font package is ready. You can now install it on your Kobo.";
   if (action === "repair-upload") return `Repaired ${result.sourceFile} with the 16 Vietnamese fonts. You can now install it on your Kobo.`;
+  if (action === "repair-koboroot-upload") return `Repaired ${result.sourceFile} with the 16 Vietnamese fonts. No NickelMenu files were added or changed.`;
   if (action === "eject") return "Your Kobo was safely ejected. Unplug it, then wait for its restart to finish.";
   const names = { nickelmenu: "Vietnamese font fix", koreader: "KOReader", simpleui: "SimpleUI" };
   return `Installed: ${Object.keys(result || {}).map((item) => names[item] || item).join(", ")}. A recovery backup was created before the changes. Now choose Safely eject Kobo.`;
@@ -19,11 +20,28 @@ function formatResult(action, result) {
 
 function renderStatus(status) {
   state.status = status;
+  const devices = status.devices || [];
+  const selector = $("#device-select");
+  const selectorWrap = $("#device-selector-wrap");
+  selectorWrap.hidden = devices.length <= 1;
+  if (devices.length > 1) {
+    if (!devices.some((device) => device.path === state.selectedDevice)) state.selectedDevice = status.path || "";
+    selector.replaceChildren(new Option("Choose a connected Kobo", ""), ...devices.map((device) => new Option(
+      `${device.name} · ${device.model} · firmware ${device.firmware || "unknown"}`,
+      device.path,
+      false,
+      device.path === state.selectedDevice,
+    )));
+  } else if (devices.length === 1) {
+    state.selectedDevice = devices[0].path;
+  } else {
+    state.selectedDevice = null;
+  }
   const dot = $("#device-dot");
   dot.className = "status-dot";
   if (!status.mounted) {
-    $("#device-title").textContent = "Connect your Kobo";
-    $("#device-detail").textContent = "Plug it in by USB, then tap Connect on the Kobo screen.";
+    $("#device-title").textContent = devices.length > 1 ? "Choose a Kobo" : "Connect your Kobo";
+    $("#device-detail").textContent = devices.length > 1 ? "More than one Kobo is connected. Select the device to change." : "Plug it in by USB, then tap Connect on the Kobo screen.";
   } else {
     dot.classList.add(status.firmwareSupported ? "connected" : "unsupported");
     $("#device-title").textContent = status.firmwareSupported ? "Kobo ready" : "Firmware needs review";
@@ -47,6 +65,7 @@ function updateButtons() {
   $("#eject").disabled = state.busy || !connected;
   $("#build").disabled = state.busy;
   $("#repair-upload").disabled = state.busy || !$("#nickelmenu-upload").files.length;
+  $("#repair-koboroot-upload").disabled = state.busy || !$("#koboroot-upload").files.length;
   $("#refresh").disabled = state.busy;
 }
 
@@ -60,7 +79,8 @@ async function request(path, options = {}) {
 
 async function refresh() {
   try {
-    const response = await fetch("/api/status", { cache: "no-store" });
+    const query = state.selectedDevice ? `?device=${encodeURIComponent(state.selectedDevice)}` : "";
+    const response = await fetch(`/api/status${query}`, { cache: "no-store" });
     renderStatus((await response.json()).status);
   } catch (error) { setLog(`Could not reach the local installer: ${error.message}`, "error"); }
 }
@@ -75,6 +95,7 @@ async function runAction(label, action, path, body = {}) {
 }
 
 $("#refresh").addEventListener("click", refresh);
+$("#device-select").addEventListener("change", (event) => { state.selectedDevice = event.target.value || null; refresh(); });
 $("#build").addEventListener("click", () => runAction("Rebuilding the font package", "build", "/api/build"));
 $("#nickelmenu-upload").addEventListener("change", updateButtons);
 $("#repair-upload").addEventListener("click", async () => {
@@ -89,8 +110,21 @@ $("#repair-upload").addEventListener("click", async () => {
     archiveBase64: btoa(binary),
   });
 });
-$("#install-all").addEventListener("click", () => runAction("Installing your Kobo setup", "install", "/api/install", { components: allComponents }));
-$("#install-custom").addEventListener("click", () => runAction("Installing selected items", "install", "/api/install", { components: [...document.querySelectorAll('input[name="component"]:checked')].map((input) => input.value) }));
-$("#eject").addEventListener("click", () => runAction("Safely ejecting Kobo", "eject", "/api/eject"));
+$("#koboroot-upload").addEventListener("change", updateButtons);
+$("#repair-koboroot-upload").addEventListener("click", async () => {
+  const file = $("#koboroot-upload").files[0];
+  if (!file) return;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  runAction("Adding Vietnamese fonts to the uploaded KoboRoot.tgz", "repair-koboroot-upload", "/api/repair-koboroot-upload", {
+    filename: file.name,
+    version: $("#koboroot-version").value,
+    archiveBase64: btoa(binary),
+  });
+});
+$("#install-all").addEventListener("click", () => runAction("Installing your Kobo setup", "install", "/api/install", { components: allComponents, devicePath: state.selectedDevice }));
+$("#install-custom").addEventListener("click", () => runAction("Installing selected items", "install", "/api/install", { components: [...document.querySelectorAll('input[name="component"]:checked')].map((input) => input.value), devicePath: state.selectedDevice }));
+$("#eject").addEventListener("click", () => runAction("Safely ejecting Kobo", "eject", "/api/eject", { devicePath: state.selectedDevice }));
 document.querySelectorAll('input[name="component"]').forEach((input) => input.addEventListener("change", updateButtons));
 refresh();

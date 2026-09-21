@@ -24,6 +24,8 @@ with sync_playwright() as playwright:
     page.get_by_text("Advanced options").click()
     assert page.get_by_text("Repair another NickelMenu version").is_visible()
     assert page.get_by_role("button", name="Repair uploaded package").is_disabled()
+    assert page.get_by_text("Repair a KoboRoot.tgz only").is_visible()
+    assert page.get_by_role("button", name="Repair KoboRoot.tgz only").is_disabled()
     page.screenshot(path=str(output), full_page=True)
     assert not errors, errors
     browser.close()

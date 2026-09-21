@@ -10,6 +10,10 @@ This local tool sets up an existing Kobo with the Vietnamese font fix, KOReader,
 
 The installer creates a recovery backup before changing the device. Your books, reading progress, KOReader settings, and plugins are preserved.
 
+## More than one Kobo
+
+The website detects every mounted Kobo by its `.kobo/version` file. If more than one Kobo is connected, choose the device from the **Choose Kobo** list before installing or ejecting. The installer will not write to a device until one is selected.
+
 ## What gets installed
 
 - **Vietnamese font fix** — NickelMenu 0.6.0 with 16 Vietnamese-compatible Kobo system fonts. It works with Kobo firmware 4.x and leaves NickelMenu’s own behavior unchanged.
@@ -22,7 +26,25 @@ Open **Advanced options** in the website and select the item to repair or update
 
 Use **Rebuild KoboRoot.tgz** only if you changed the included font or NickelMenu source. It needs Docker Desktop.
 
-To use another NickelMenu release, open **Advanced options**, choose that release’s `KoboRoot.tgz` in **Repair another NickelMenu version**, and optionally enter its version number. The tool verifies the archive, preserves its NickelMenu files, and adds the Vietnamese fonts. Then use **Install everything**.
+## Repair an uploaded KoboRoot.tgz
+
+Use this when you already have a `KoboRoot.tgz` and want to add the Vietnamese fonts to it. Uploading prepares a repaired package on this Mac; it does not change the Kobo until you install it.
+
+### NickelMenu package
+
+1. Open **Advanced options** and choose **Repair another NickelMenu version**.
+2. Select that release’s file named `KoboRoot.tgz`. You can enter its version number for your reference.
+3. Choose **Repair uploaded package**. The tool keeps the NickelMenu files and adds the Vietnamese fonts.
+4. Choose **Install everything**, or select only **Vietnamese font fix** and choose **Install selected items**.
+
+### Custom package without NickelMenu
+
+1. Open **Advanced options** and choose **Repair a KoboRoot.tgz only**.
+2. Select your custom file named `KoboRoot.tgz` and choose **Repair KoboRoot.tgz only**.
+3. The tool preserves every non-font entry. It does not add, update, or configure NickelMenu.
+4. Select only **Vietnamese font fix**, choose **Install selected items**, then safely eject the Kobo.
+
+The archive must be a gzip `KoboRoot.tgz` no larger than 16 MB. The installer rejects unsafe archive paths and links.
 
 ## Common questions
 
