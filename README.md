@@ -56,6 +56,17 @@ The archive must be a gzip `KoboRoot.tgz` no larger than 16 MB. The installer re
 
 ## Credits
 
-The multiple-device detection flow was informed by [KoboPatch Web UI](https://github.com/nicoverbruggen/kobopatch-webui), which provides browser-based Kobo device detection and setup workflows. This installer has its own local Python implementation and runs only on the Mac hosting it.
+### Reference
+
+The multiple-device detection flow was informed by [KoboPatch Web UI](https://github.com/nicoverbruggen/kobopatch-webui) by Nico Verbruggen. It is an MIT-licensed browser app that uses the Filesystem Access API to detect and set up connected Kobo devices client-side. This installer instead uses its own local Python implementation and runs only on the Mac hosting it.
+
+### Bundled works
+
+This installer ships the following upstream works in its [vendor directory](https://github.com/31191027399/kobo-vietnamese-font-fix/tree/main/vendor). Each remains the property of its authors and is used under its own license.
+
+- [NickelMenu](https://github.com/pgaskin/NickelMenu) 0.6.0 — Patrick Gaskin *(MIT)*
+- [KOReader](https://github.com/koreader/koreader) 2026.07.1 — the KOReader team *(AGPL-3.0)*
+- [SimpleUI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) 2.7.1 — Doctor Hetfield *(MIT)*
+- Vietnamese fonts — Lê Linh Tịnh, [kobo-tieng-viet](https://github.com/lelinhtinh/kobo-tieng-viet) 1.0.0
 
 For source versions and developer checks, see [TECHNICAL-NOTES.md](TECHNICAL-NOTES.md).
