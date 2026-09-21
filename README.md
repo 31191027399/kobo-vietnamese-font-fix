@@ -54,4 +54,8 @@ The archive must be a gzip `KoboRoot.tgz` no larger than 16 MB. The installer re
 
 **Where are backups?** They are saved in `backups/`. They may contain reading data or book names, so keep them private.
 
+## Credits
+
+The multiple-device detection flow was informed by [KoboPatch Web UI](https://github.com/nicoverbruggen/kobopatch-webui), which provides browser-based Kobo device detection and setup workflows. This installer has its own local Python implementation and runs only on the Mac hosting it.
+
 For source versions and developer checks, see [TECHNICAL-NOTES.md](TECHNICAL-NOTES.md).
