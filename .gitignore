@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+build/nickelmenu-build-*/
+backups/
+.DS_Store
+._*

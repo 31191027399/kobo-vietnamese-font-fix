@@ -1,0 +1,3 @@
+[submodule "vendor/nickelmenu"]
+	path = vendor/nickelmenu
+	url = https://github.com/pgaskin/NickelMenu.git

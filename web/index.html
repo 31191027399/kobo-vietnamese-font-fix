@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kobo Vietnamese Installer</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Local Kobo setup</p>
+        <h1>Kobo Vietnamese Installer</h1>
+        <p class="lede">Install the Vietnamese font fix, KOReader, and SimpleUI on your Kobo in three simple steps.</p>
+      </div>
+      <div class="device-card" aria-live="polite">
+        <span id="device-dot" class="status-dot"></span>
+        <div>
+          <strong id="device-title">Checking for Kobo…</strong>
+          <p id="device-detail">Connect the device by USB and tap Connect.</p>
+        </div>
+        <button id="refresh" class="button secondary compact" type="button">Check Kobo</button>
+      </div>
+    </header>
+
+    <section class="workflow" aria-label="Kobo setup steps">
+      <article class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-copy">
+          <p class="kicker">Connect</p>
+          <h2>Connect your Kobo by USB</h2>
+          <p>On the Kobo screen, tap <strong>Connect</strong>. Then choose <strong>Check Kobo</strong> above. Your books and reading progress stay on the device.</p>
+        </div>
+      </article>
+
+      <article class="step-card main-step">
+        <div class="step-number">2</div>
+        <div class="step-copy">
+          <p class="kicker">Install</p>
+          <h2>Install everything</h2>
+          <p>This installs the Vietnamese font fix, updates KOReader, and installs SimpleUI. A recovery backup is created automatically before any changes.</p>
+          <div class="facts" id="build-facts">Checking the installation package…</div>
+          <button id="install-all" class="button primary large" type="button" disabled>Install everything</button>
+          <p class="hint">For most Kobo H2O devices, this is the only button you need.</p>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-copy">
+          <p class="kicker">Eject</p>
+          <h2>Safely eject and restart</h2>
+          <p>After installation completes, eject the Kobo. Unplug the cable and let the Kobo restart. The Vietnamese fonts activate during that restart.</p>
+          <button id="eject" class="button secondary" type="button" disabled>Safely eject Kobo</button>
+        </div>
+      </article>
+    </section>
+
+    <details class="advanced">
+      <summary>Advanced options</summary>
+      <div class="advanced-content">
+        <section>
+          <h2>Install only one item</h2>
+          <p>Use this only when repairing or updating part of the setup.</p>
+          <div class="choices">
+            <label class="choice"><input type="checkbox" name="component" value="nickelmenu" checked><span><strong>Vietnamese font fix</strong><small>For Kobo firmware 4.x</small></span></label>
+            <label class="choice"><input type="checkbox" name="component" value="koreader" checked><span><strong>KOReader</strong><small>Keeps your settings, history, and plugins</small></span></label>
+            <label class="choice"><input type="checkbox" name="component" value="simpleui" checked><span><strong>SimpleUI</strong><small>Includes Vietnamese translation</small></span></label>
+          </div>
+          <button id="install-custom" class="button secondary" type="button" disabled>Install selected items</button>
+        </section>
+        <section class="rebuild-section">
+          <h2>Rebuild the font package</h2>
+          <p>Only use this after changing the bundled source or fonts. Docker Desktop is required.</p>
+          <button id="build" class="button secondary" type="button">Rebuild KoboRoot.tgz</button>
+        </section>
+        <section class="upload-section">
+          <h2>Repair another NickelMenu version</h2>
+          <p>Choose that version’s <code>KoboRoot.tgz</code>. The installer keeps its NickelMenu files and adds the 16 Vietnamese fonts.</p>
+          <label class="file-picker" for="nickelmenu-upload">Choose KoboRoot.tgz<input id="nickelmenu-upload" type="file" accept=".tgz,application/gzip"></label>
+          <label class="version-label" for="nickelmenu-version">NickelMenu version <input id="nickelmenu-version" type="text" maxlength="64" placeholder="for example, 0.6.0"></label>
+          <button id="repair-upload" class="button secondary" type="button" disabled>Repair uploaded package</button>
+        </section>
+      </div>
+    </details>
+
+    <section class="console-card" aria-live="polite">
+      <div class="console-head"><div><p class="kicker">Progress</p><h2>Installer status</h2></div><span id="busy-badge" class="badge">Ready</span></div>
+      <p id="log">Connect your Kobo, then choose Install everything.</p>
+    </section>
+    <footer><p>This tool runs only on this Mac. Nothing from your Kobo is uploaded.</p></footer>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>

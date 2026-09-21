@@ -1,0 +1,23 @@
+{
+  "build/KoboRoot.tgz": "c6ae7aa9bd7228058193125a60ed8be09478a1cc040adc740919ba207e24a054",
+  "vendor/koreader/koreader-kobo-v2026.07.1.zip": "0f36a62ce73b12516f969e4ad7862cc06920afb03c7bd4db29a0d990bdd84b2f",
+  "vendor/simpleui/simpleui.koplugin/_meta.lua": "9e862abdcbc8ce4fcfaea9bb0fabeb3474c6a4cba8181e6e437a8cabcd359b51",
+  "vendor/simpleui/simpleui.koplugin/locale/vi.po": "d6d25c65aad7fd4d962dba8092d371c3ebfe1fed197555a50f963ea8df5136b7",
+  "vendor/simpleui/simpleui.koplugin/main.lua": "2f0b274fcaf97a95e8ea60e1d9ebf92ee494918bd480f3bbbb88e7463fe9f472",
+  "vendor/vietnamese-fonts/Avenir-Bold.ttf": "c1550c7949c5f3fe429e5de049463ced98829f905fc7508bb51ce3cd02b8a840",
+  "vendor/vietnamese-fonts/Avenir-BoldItalic.ttf": "de91d98095625dc1af3824d9eda0ba78cc330b7f7f410b2a2acf8bafa97380ec",
+  "vendor/vietnamese-fonts/Avenir-Italic.ttf": "3005cbadded1fbd381fb46aacc83638d54350c1d90ce0d8ae85c1e7e4e6b48c3",
+  "vendor/vietnamese-fonts/Avenir.ttf": "cd26d3decc10bb02eece30dae23b1cffa6c4cacf020b452bebcf2e2e5ed35da6",
+  "vendor/vietnamese-fonts/RakutenSansUIApp-Bold.ttf": "f6ddfad06a4ec1db82a51eab284cb8e0612c3c7d3e4645c89afd2eeef427fd79",
+  "vendor/vietnamese-fonts/RakutenSansUIApp-BoldItali.ttf": "a4d977a1cb9e6844a6ad5b31d2bf869823b52dd37bb22a256e70302bfdce6d23",
+  "vendor/vietnamese-fonts/RakutenSansUIApp-Italic.ttf": "02a632f34e9af5f84823b86ab6184b85977e7961a6eead4ee6608efcab7cf172",
+  "vendor/vietnamese-fonts/RakutenSansUIApp-Regular.ttf": "a21a93242066607ecc19689ea31115c6519cfad6432568f4705b69dabf0fc71d",
+  "vendor/vietnamese-fonts/RakutenSerifApp-Bold.ttf": "d4c7a38aa8cb8126434f6ad377d61789e97393577767b684651e9c39133997d4",
+  "vendor/vietnamese-fonts/RakutenSerifApp-BoldItalic.ttf": "a6c02ba067dd84c10dc22f42e4bce77fa1739435afdfb849005c1e12906a3d4a",
+  "vendor/vietnamese-fonts/RakutenSerifApp-Italic.ttf": "2b720b195965a764630c2f7cbd879a65a8e926330225df9d0d58d345512ca2f3",
+  "vendor/vietnamese-fonts/RakutenSerifApp-Regular.ttf": "f4f1bc96d557b24a3e05a909c0778025f08932c22eb797b6d4533d249e857ed3",
+  "vendor/vietnamese-fonts/georgia.ttf": "e511d8ab003e164a41c6c4a4417019f0c8026422b363b42c24ca16ce6269b75c",
+  "vendor/vietnamese-fonts/georgiab.ttf": "dcc83e1f48da7acd752e342e8db55d434b61944085546f0effdef089230cde52",
+  "vendor/vietnamese-fonts/georgiai.ttf": "1e03e58fe29ac5df4c42dd0585c5c966d99661a9bed57df2fdfbfffa5fb9b6a5",
+  "vendor/vietnamese-fonts/georgiaz.ttf": "a606bfa68022df779ceeb44ecda7e58957d060acc9f4bf00c831107480dc5e05"
+}
