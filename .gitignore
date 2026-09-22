@@ -4,3 +4,5 @@ build/nickelmenu-build-*/
 backups/
 .DS_Store
 ._*
+openspec/
+.opencode/

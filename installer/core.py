@@ -49,10 +49,26 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _windows_volumes() -> list[Path]:
+    import ctypes
+
+    bitmask = ctypes.windll.kernel32.GetLogicalDrives()
+    return [
+        Path(f"{chr(ord('A') + index)}:\\")
+        for index in range(26)
+        if bitmask & (1 << index)
+    ]
+
+
 def _device_candidates() -> list[Path]:
     override = os.environ.get("KOBO_MOUNT")
     if override:
         return [Path(override).expanduser().resolve()]
+    if os.name == "nt":
+        return sorted(
+            (candidate for candidate in _windows_volumes() if candidate.is_dir()),
+            key=lambda item: str(item).lower(),
+        )
     volumes = Path("/Volumes")
     if not volumes.is_dir():
         return []
@@ -614,6 +630,11 @@ def install_selected(components: list[str], device_path: str | None = None) -> d
 
 def safely_eject(device_path: str | None = None) -> dict:
     device = require_device(device_path)
+    if os.name == "nt":
+        return {
+            "message": "Close any open files, then use Windows' Safely Remove Hardware to eject the Kobo.",
+            "path": str(device),
+        }
     if os.environ.get("KOBO_MOUNT") or device.parent != Path("/Volumes"):
         return {"message": "Simulated Kobo released.", "path": str(device)}
     completed = subprocess.run(

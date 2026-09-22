@@ -1,14 +1,38 @@
 # Kobo Vietnamese Installer
 
-This local tool sets up an existing Kobo with the Vietnamese font fix, KOReader, and SimpleUI. It runs only on your Mac and does not upload anything from the Kobo.
+This local tool sets up an existing Kobo with the Vietnamese font fix, KOReader, and SimpleUI. It runs only on your own computer (macOS or Windows) and does not upload anything from the Kobo.
 
 ## Install in three steps
 
-1. Double-click [start.command](start.command). Your browser should open the installer. If it does not, open <http://127.0.0.1:8765>.
+1. Start the installer for your platform (see [Start the installer](#start-the-installer)). Your browser should open the installer. If it does not, open <http://127.0.0.1:8765>.
 2. Plug in the Kobo by USB and tap **Connect** on its screen. In the browser, choose **Check Kobo**, then **Install everything**.
 3. When the installer says it is complete, choose **Safely eject Kobo**. Unplug the cable and wait for the Kobo to restart.
 
 The installer creates a recovery backup before changing the device. Your books, reading progress, KOReader settings, and plugins are preserved.
+
+## Start the installer
+
+The server needs Python 3 and uses only the Python standard library.
+
+### macOS
+
+1. Double-click [start.command](start.command).
+2. If macOS refuses to open it, open **Terminal** in this folder and run:
+
+   ```sh
+   ./start.command
+   ```
+
+### Windows
+
+1. Install Python 3 from [python.org](https://www.python.org/downloads/) if you do not have it, and tick **Add python.exe to PATH** during setup.
+2. Double-click [start.bat](start.bat). To start it from a terminal instead, run:
+
+   ```bat
+   start.bat
+   ```
+
+Both scripts start a local server on <http://127.0.0.1:8765>, open your browser, and keep running until you press Control-C or close the window. On Windows, the **Safely eject Kobo** button reminds you to use **Safely Remove Hardware** instead of ejecting for you.
 
 ## More than one Kobo
 
