@@ -9,7 +9,31 @@ import zipfile
 from pathlib import Path
 from unittest import mock
 
+import server
+
 from installer import core
+
+
+class ServerTests(unittest.TestCase):
+    def test_bind_falls_back_when_port_is_in_use(self):
+        blocker = server.ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        used = blocker.server_address[1]
+        try:
+            bound = server._bind_server("127.0.0.1", used)
+            try:
+                self.assertNotEqual(bound.server_address[1], used)
+                self.assertGreater(bound.server_address[1], used)
+            finally:
+                bound.server_close()
+        finally:
+            blocker.server_close()
+
+    def test_bind_uses_requested_port_when_free(self):
+        bound = server._bind_server("127.0.0.1", 0)
+        try:
+            self.assertGreater(bound.server_address[1], 0)
+        finally:
+            bound.server_close()
 
 
 class InstallerTests(unittest.TestCase):

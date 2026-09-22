@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import mimetypes
 import threading
@@ -103,6 +104,21 @@ class Handler(BaseHTTPRequestHandler):
             self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"ok": False, "error": f"Unexpected error: {exc}"})
 
 
+def _bind_server(host: str, port: int, attempts: int = 20) -> ThreadingHTTPServer:
+    last_error: OSError | None = None
+    for candidate in range(port, port + attempts):
+        try:
+            return ThreadingHTTPServer((host, candidate), Handler)
+        except OSError as exc:
+            if exc.errno != errno.EADDRINUSE:
+                raise
+            last_error = exc
+    raise SystemExit(
+        f"No free port found between {port} and {port + attempts - 1}. "
+        f"Close whatever is using them and try again. ({last_error})"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the local Kobo Vietnamese Installer web interface.")
     parser.add_argument("--host", default="127.0.0.1")
@@ -111,8 +127,11 @@ def main() -> None:
     args = parser.parse_args()
     if args.host not in {"127.0.0.1", "localhost"}:
         raise SystemExit("For safety, this installer only binds to localhost.")
-    server = ThreadingHTTPServer((args.host, args.port), Handler)
-    url = f"http://127.0.0.1:{args.port}/"
+    server = _bind_server(args.host, args.port)
+    port = server.server_address[1]
+    url = f"http://127.0.0.1:{port}/"
+    if port != args.port:
+        print(f"Port {args.port} is in use; using {port} instead.")
     print(f"Kobo Vietnamese Installer running at {url}")
     print("Press Control-C to stop.")
     if not args.no_browser:
