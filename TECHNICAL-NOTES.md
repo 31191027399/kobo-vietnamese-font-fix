@@ -1,38 +1,50 @@
 # Technical notes
 
-## Included sources
+## Scope
 
-- NickelMenu is an exact recursive checkout of tag `v0.6.0` (`15a95f7`), including pinned NickelHook commit `3b1b655`.
-- The 16 Vietnamese fonts come unchanged from `lelinhtinh/kobo-tieng-viet` 1.0.0.
-- KOReader is the Kobo `v2026.07.1` release payload.
-- SimpleUI is `v2.7.1`, including its upstream license, documentation, and Vietnamese translation.
+The active install API accepts only `fonts`, `kobo_dictionary`, and `koreader_dictionary`. It never installs or updates NickelMenu, KOReader, SimpleUI, translations, keyboard support, or unrelated tools.
 
-## Vietnamese font package
+Legacy helper functions and vendored sources remain temporarily for backward compatibility and repository history, but the browser flow cannot invoke them.
 
-The builder makes a temporary copy of NickelMenu, adds a packaging-only Makefile rule for the font files, then builds with the official `ghcr.io/pgaskin/nickeltc:1.0` Docker image. It validates that `KoboRoot.tgz` contains NickelMenu, its documentation, and all 16 fonts before replacing `build/KoboRoot.tgz`.
+## Font provenance and package
 
-No NickelMenu runtime code is changed. The added fonts are placed in Kobo’s Qt font directory. The installer accepts firmware 4.x and refuses firmware 5.x for this package.
+All 20 generated fonts are copied unchanged from [redphx/kobo-tieng-viet](https://github.com/redphx/kobo-tieng-viet) release `v20260319`. Its official `KoboRoot.tgz` has SHA-256 `3854122f591d9038b8083d6af55796340ed4b0f5954ee43a7da83cbf1b7f683f`.
 
-The Advanced upload control can repair a supplied NickelMenu `KoboRoot.tgz` without Docker. It accepts only a gzip tar archive containing NickelMenu’s library and documentation, refuses unsafe paths, links, and oversized extracted payloads, copies the original regular files unchanged, then replaces only the Qt font entries with the verified Vietnamese font set.
+`build_font_package()` creates `build/KoboRoot.tgz` with Python's `tarfile` module. The package contains:
 
-The separate **KoboRoot.tgz only** control uses the same archive-safety checks but does not require NickelMenu files. It is intended for a custom package whose own behavior must remain unchanged; it overlays only the font entries.
+- 16 Avenir, Georgia, Rakuten Sans, and Rakuten Serif replacements under `usr/local/Trolltech/QtEmbedded-4.6.2-arm/lib/fonts/`.
+- 4 Courier-compatible fonts under `mnt/onboard/fonts/` for correct monospace rendering.
 
-## Installation behavior
+It excludes every non-font item from the upstream package, including `libtiengviet.so`, `trans_vi.qm`, `update_conf.sh`, its udev rule, and install markers. The result is intentionally font-only.
 
-The local server identifies Kobo volumes by the presence of `.kobo/version`. It returns every detected device to the browser and requires an explicit volume path for install and eject operations whenever more than one Kobo is connected.
+The validator checks each source and archive font by SHA-256. Installation is limited to firmware 4.x, backs up an existing staged `.kobo/KoboRoot.tgz`, atomically copies the archive, and verifies the copied hash. No compiler or container is involved.
 
-- NickelMenu backs up the existing `KoboRoot.tgz`, then stages the verified font package in `.kobo/`.
-- KOReader updates `.adds/koreader` while preserving settings, history, plugins, and book data; configures the direct launcher plus a separate `kobo-installer` NickelMenu file with Dark Mode, Wi-Fi, rescan, and reboot shortcuts; and removes the stale KFMon generator configuration that causes `/tmp/kfmon-ipc.ctl` errors.
-- SimpleUI backs up an existing UI plugin, disables conflicting ZenOS or ProjectTitle folders, installs SimpleUI, verifies its version and Vietnamese translation, and replaces stale ZenOS font references with KOReader’s bundled Noto Sans.
+The generic archive-repair endpoint preserves safe non-font regular files and overlays only these 20 font entries. It rejects absolute/traversal paths, links, special entries, inputs over 16 MB, and expanded data over 64 MB.
 
-`backups/legacy/` contains retained recovery archives from the original manual setup. Backups can include book names, reading history, and device settings; keep them private.
+## Dictionaries
+
+Dictionary artifacts are fetched directly from [redphx/tudien](https://github.com/redphx/tudien) release `v20260411` and cached in `build/dictionary-cache/`:
+
+| Target | Upstream asset | SHA-256 |
+| --- | --- | --- |
+| Kobo | `tudien-kobo-en-vi-20260411.zip` | `3f6f9ea747540424a91d174d753d067581ce77c3e2f036c6432a746eb508a0ce` |
+| KOReader | `tudien-stardict-en-vi-20260411.zip` | `144f4e73639d9ec277ffc39e17d789d54434af484ca9092e31a694c1027fbe9a` |
+
+Downloads are capped at 32 MB and verified before entering the cache. The Kobo ZIP is integrity-tested. The KOReader ZIP must contain exactly one `.dict.dz`, `.idx`, and `.ifo` payload; those files are flattened to stable `tudien.*` names in `.adds/koreader/data/dict/tudien-en-vi/`.
+
+All selected dictionary downloads are prepared before any device write. KOReader presence is also checked before writes, preventing a partial install when that prerequisite is missing.
+
+## Device handling
+
+Devices are identified by `.kobo/version`. Detection scans `/Volumes` on macOS, drive letters on Windows, and `/media`, `/run/media`, and `/mnt` on Linux. `KOBO_MOUNT` can override detection for testing. Manual folder selection is accepted only when `.kobo/version` exists.
+
+Eject is user-guided on macOS, Windows, and Linux so file-manager processes cannot block or invalidate the operation. Folder reveal uses `open`, `explorer`, or `xdg-open`.
 
 ## Checks
 
 ```sh
-cd "/Users/finn/Desktop/Fix kobo/kobo-vietnamese-installer"
-python3 -m py_compile server.py installer/core.py
-python3 -m unittest discover -s tests -p 'test_*.py'
+PYTHONPYCACHEPREFIX=/tmp/kobo-installer-pycache python3 -m py_compile server.py installer/core.py
+PYTHONPYCACHEPREFIX=/tmp/kobo-installer-pycache python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-The runtime uses only Python’s standard library. Playwright is used for browser testing.
+The runtime uses only Python's standard library.

@@ -1,96 +1,105 @@
 # Kobo Vietnamese Installer
 
-This local tool sets up an existing Kobo with the Vietnamese font fix, KOReader, and SimpleUI. It runs only on your own computer (macOS or Windows) and does not upload anything from the Kobo.
+[Hướng dẫn tiếng Việt](README.vi.md)
 
-## Install in three steps
+A focused local installer for Vietnamese support on Kobo:
 
-1. Start the installer for your platform (see [Start the installer](#start-the-installer)). Your browser should open the installer. If it does not, open <http://127.0.0.1:8765>.
-2. Plug in the Kobo by USB and tap **Connect** on its screen. In the browser, choose **Check Kobo**, then **Install everything**.
-3. When the installer says it is complete, choose **Safely eject Kobo**. Unplug the cable and wait for the Kobo to restart.
+- 20 Kobo-compatible fonts and an optional Vietnamese language pack from [Kobo Tiếng Việt](https://github.com/redphx/kobo-tieng-viet) by redphx
+- English–Vietnamese dictionary for Kobo's built-in reader
+- English–Vietnamese StarDict dictionary for an existing KOReader installation
 
-The installer creates a recovery backup before changing the device. Your books, reading progress, KOReader settings, and plugins are preserved.
+It does **not** install or update NickelMenu, KOReader, SimpleUI, or other tools. It does not upload anything from the Kobo. Existing books, reading progress, settings, plugins, and unrelated files are left alone.
+
+## Recommended order
+
+1. If you want NickelMenu or KOReader, install them first with [KoboPatch Web UI](https://kp.nicoverbruggen.be) by Nico Verbruggen.
+2. Safely eject the Kobo and wait for its installation/restart to finish. Do not run both installers during the same USB session because each may stage a `.kobo/KoboRoot.tgz`.
+3. Reconnect the Kobo, start this installer, and choose **Install Vietnamese support**.
+4. Close any open Kobo files, eject the Kobo manually from Finder/file manager, unplug it, and let it restart to apply the fonts and language pack. The web page provides instructions only; it does not call an eject command.
+
+KOReader is optional. When it is detected, the main action installs its Vietnamese dictionary too. When it is absent, the installer adds only the font fix and Kobo dictionary.
 
 ## Start the installer
 
-The server needs Python 3 and uses only the Python standard library.
+Python 3 is the only runtime requirement.
 
 ### macOS
 
-1. Double-click [start.command](start.command).
-2. If macOS refuses to open it, open **Terminal** in this folder and run:
+Double-click `start.command`, or run:
 
-   ```sh
-   ./start.command
-   ```
+```sh
+./start.command
+```
 
 ### Windows
 
-1. Install Python 3 from [python.org](https://www.python.org/downloads/) if you do not have it, and tick **Add python.exe to PATH** during setup.
-2. Double-click [start.bat](start.bat). To start it from a terminal instead, run:
+Install [Python 3](https://www.python.org/downloads/) with **Add python.exe to PATH** enabled, then double-click `start.bat` or run:
 
-   ```bat
-   start.bat
-   ```
+```bat
+start.bat
+```
 
-Both scripts start a local server on <http://127.0.0.1:8765>, open your browser, and keep running until you press Control-C or close the window. On Windows, the **Safely eject Kobo** button reminds you to use **Safely Remove Hardware** instead of ejecting for you.
+### Linux
 
-## More than one Kobo
+```sh
+python3 server.py
+```
 
-The website detects every mounted Kobo by its `.kobo/version` file. If more than one Kobo is connected, choose the device from the **Choose Kobo** list before installing or ejecting. The installer will not write to a device until one is selected.
+The browser opens at <http://127.0.0.1:8765>. Connect the Kobo by USB and tap **Connect** on its screen. The device card refreshes automatically; it also supports multiple devices and manual folder selection.
 
-## What gets installed
+## Exactly what changes
 
-- **Vietnamese font fix** — NickelMenu 0.6.0 with 16 Vietnamese-compatible Kobo system fonts. It works with Kobo firmware 4.x and leaves NickelMenu’s own behavior unchanged.
-- **KOReader** — version 2026.07.1, with a direct NickelMenu launcher, standard shortcuts for Dark Mode, Wi-Fi, book rescanning, and rebooting, plus a repair for the KFMon generator error.
-- **SimpleUI** — version 2.7.1 with Vietnamese translation.
+### Vietnamese fonts and language pack
 
-## If you need only one item
+The advanced font rebuild contains 16 system-font replacements plus four Courier-compatible user fonts. The normal **Install Vietnamese support** action additionally includes the optional language payload from redphx's verified `v20260319` release: `trans_vi.qm`, `libtiengviet.so`, and a small configuration hook that adds `Extra: vi` to Kobo's language list. It has no NickelMenu or KOReader payload.
 
-Open **Advanced options** in the website and select the item to repair or update. The normal **Install everything** button is the recommended choice for a first setup.
+The installer accepts this package only on firmware 4.x and backs up an existing staged `.kobo/KoboRoot.tgz` before replacing it. After reboot, choose **More → Settings → Language and dictionaries → Select your Language → Extra: vi** if Kobo does not select it automatically. The advanced **Rebuild KoboRoot.tgz** action remains font-only; the normal install action creates a combined font + language package when both are selected, or a language-only package when only the language pack is selected.
 
-Use **Rebuild KoboRoot.tgz** only if you changed the included font or NickelMenu source. It needs Docker Desktop.
+For the complete Vietnamese interface, keyboard, and automatic repair behavior beyond this focused language pack, use the original [Kobo Tiếng Việt](https://github.com/redphx/kobo-tieng-viet) project by redphx.
 
-## Repair an uploaded KoboRoot.tgz
+### Kobo dictionary
 
-Use this when you already have a `KoboRoot.tgz` and want to add the Vietnamese fonts to it. Uploading prepares a repaired package on this Mac; it does not change the Kobo until you install it.
+The installer downloads the official `redphx/tudien` Kobo release, verifies its published SHA-256 hash, and copies it to:
 
-### NickelMenu package
+```text
+.kobo/custom-dict/dicthtml-en-vi.zip
+```
 
-1. Open **Advanced options** and choose **Repair another NickelMenu version**.
-2. Select that release’s file named `KoboRoot.tgz`. You can enter its version number for your reference.
-3. Choose **Repair uploaded package**. The tool keeps the NickelMenu files and adds the Vietnamese fonts.
-4. Choose **Install everything**, or select only **Vietnamese font fix** and choose **Install selected items**.
+### KOReader dictionary
 
-### Custom package without NickelMenu
+If `.adds/koreader` exists, the installer downloads and verifies the official StarDict release, then writes its three dictionary files to:
 
-1. Open **Advanced options** and choose **Repair a KoboRoot.tgz only**.
-2. Select your custom file named `KoboRoot.tgz` and choose **Repair KoboRoot.tgz only**.
-3. The tool preserves every non-font entry. It does not add, update, or configure NickelMenu.
-4. Select only **Vietnamese font fix**, choose **Install selected items**, then safely eject the Kobo.
+```text
+.adds/koreader/data/dict/tudien-en-vi/
+```
 
-The archive must be a gzip `KoboRoot.tgz` no larger than 16 MB. The installer rejects unsafe archive paths and links.
+It does not modify KOReader settings, plugins, history, or application files. If KOReader is missing, install it with KoboPatch Web UI first.
 
-## Common questions
+Dictionary downloads are pinned to `redphx/tudien` release `v20260411` and cached locally after checksum verification. Existing dictionary targets are backed up before updates.
 
-**Will this change Kobo’s normal reader?** No. NickelMenu adds a menu entry and the font package adds system fonts. Kobo’s normal home screen and reader remain available.
+### Independent advanced installs
 
-**When do Vietnamese fonts appear?** The font package is applied when the Kobo restarts after ejecting. Leave it unplugged until that restart has finished.
+Open **Advanced options** to install any one of these components independently, or select several at once:
 
-**Where are backups?** They are saved in `backups/`. They may contain reading data or book names, so keep them private.
+- **Vietnamese font fix** — requires Kobo firmware 4.x.
+- **Vietnamese language pack** — can be installed without the font fix.
+- **Kobo dictionary** — for Kobo's built-in reader.
+- **KOReader dictionary** — requires an existing `.adds/koreader` directory.
 
-## Credits
+The advanced selection starts empty so no component is implicitly bundled with another. The source projects are linked directly in the interface and documented in [Credits and provenance](#credits-and-provenance).
 
-### Reference
+## Advanced archive repair
 
-The multiple-device detection flow was informed by [KoboPatch Web UI](https://github.com/nicoverbruggen/kobopatch-webui) by Nico Verbruggen. It is an MIT-licensed browser app that uses the Filesystem Access API to detect and set up connected Kobo devices client-side. This installer instead uses its own local Python implementation and runs only on the Mac hosting it.
+The **Repair a KoboRoot.tgz only** action overlays the 20 fonts onto a supplied archive while preserving every non-font regular file. It rejects unsafe paths, links, and oversized input. This is for developers who already have a custom package; normal users should use the bundled font-only package.
 
-### Bundled works
+Recovery backups are stored in `backups/`. They may contain device data, so keep them private.
 
-This installer ships the following upstream works in its [vendor directory](https://github.com/31191027399/kobo-vietnamese-font-fix/tree/main/vendor). Each remains the property of its authors and is used under its own license.
+## Credits and provenance
 
-- [NickelMenu](https://github.com/pgaskin/NickelMenu) 0.6.0 — Patrick Gaskin *(MIT)*
-- [KOReader](https://github.com/koreader/koreader) 2026.07.1 — the KOReader team *(AGPL-3.0)*
-- [SimpleUI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) 2.7.1 — Doctor Hetfield *(MIT)*
-- Vietnamese fonts — Lê Linh Tịnh, [kobo-tieng-viet](https://github.com/lelinhtinh/kobo-tieng-viet) 1.0.0
+- Font payload and Kobo font-fix behavior: [Kobo Tiếng Việt](https://github.com/redphx/kobo-tieng-viet) by **redphx**, release `v20260319`. Exact provenance is recorded in [`vendor/vietnamese-fonts/SOURCE.md`](vendor/vietnamese-fonts/SOURCE.md).
+- Kobo and KOReader dictionaries: [redphx/tudien](https://github.com/redphx/tudien) by **redphx**. Archives are downloaded directly from the original releases and are not redistributed here.
+- Optional prerequisite tools: [KoboPatch Web UI](https://github.com/nicoverbruggen/kobopatch-webui) by **Nico Verbruggen**. Use it to install NickelMenu, KOReader, and other tools before returning here.
 
-For source versions and developer checks, see [TECHNICAL-NOTES.md](TECHNICAL-NOTES.md).
+This project is independent of those upstream projects. Their work remains theirs and is subject to their respective terms.
+
+Developer details and verification commands are in [TECHNICAL-NOTES.md](TECHNICAL-NOTES.md).

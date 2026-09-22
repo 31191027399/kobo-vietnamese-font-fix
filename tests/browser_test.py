@@ -18,12 +18,21 @@ with sync_playwright() as playwright:
     page.get_by_role("heading", name="Kobo Vietnamese Installer").wait_for()
     page.get_by_text("Kobo ready").wait_for()
     assert "Firmware 4.38.23697" in page.locator("#device-detail").inner_text()
-    assert "16 fonts" in page.locator("#build-facts").inner_text()
-    assert page.get_by_role("button", name="Install everything").is_enabled()
+    assert "20 fonts" in page.locator("#build-facts").inner_text()
+    assert page.get_by_role("button", name="Install Vietnamese support").is_enabled()
+    assert page.locator("#action-phase").inner_text() == "Ready"
+    assert page.locator("#action-percent").inner_text() == "0%"
+    page.select_option("#language-select", "vi")
+    assert page.locator("h1").inner_text() == "Bộ cài tiếng Việt cho Kobo"
+    assert page.get_by_role("button", name="Cài hỗ trợ tiếng Việt").is_enabled()
+    assert page.locator("#action-phase").inner_text() == "Sẵn sàng"
+    page.select_option("#language-select", "en")
+    assert page.locator("h1").inner_text() == "Kobo Vietnamese Installer"
     assert page.get_by_text("Advanced options").is_visible()
     page.get_by_text("Advanced options").click()
-    assert page.get_by_text("Repair another NickelMenu version").is_visible()
-    assert page.get_by_role("button", name="Repair uploaded package").is_disabled()
+    assert page.get_by_text("Vietnamese language pack", exact=True).is_visible()
+    assert page.get_by_text("Adds Extra: vi to Kobo’s Language and dictionaries list", exact=False).is_visible()
+    assert page.get_by_text("KOReader dictionary", exact=True).is_visible()
     assert page.get_by_text("Repair a KoboRoot.tgz only").is_visible()
     assert page.get_by_role("button", name="Repair KoboRoot.tgz only").is_disabled()
     page.screenshot(path=str(output), full_page=True)

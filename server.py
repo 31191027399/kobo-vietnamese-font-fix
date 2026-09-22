@@ -5,6 +5,8 @@ import errno
 import json
 import mimetypes
 import threading
+import time
+import uuid
 import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -17,6 +19,32 @@ from installer import core
 ROOT = Path(__file__).resolve().parent
 WEB = ROOT / "web"
 ACTION_LOCK = threading.Lock()
+ACTION_STATE_LOCK = threading.Lock()
+ACTION_STATE: dict[str, dict] = {}
+
+
+def _set_action(action_id: str, phase: str, progress: int | None, message: str, **extra) -> None:
+    with ACTION_STATE_LOCK:
+        ACTION_STATE[action_id] = {
+            "id": action_id,
+            "phase": phase,
+            "progress": progress,
+            "message": message,
+            "updatedAt": time.time(),
+            **extra,
+        }
+        if len(ACTION_STATE) > 24:
+            oldest = sorted(ACTION_STATE, key=lambda key: ACTION_STATE[key]["updatedAt"])[:-24]
+            for key in oldest:
+                ACTION_STATE.pop(key, None)
+
+
+def _get_action(action_id: str | None) -> dict | None:
+    if not action_id:
+        return None
+    with ACTION_STATE_LOCK:
+        value = ACTION_STATE.get(action_id)
+        return dict(value) if value else None
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -50,6 +78,14 @@ class Handler(BaseHTTPRequestHandler):
             selected = parse_qs(parsed.query).get("device", [None])[0]
             self._json(HTTPStatus.OK, {"ok": True, "status": core.device_status(selected)})
             return
+        if parsed.path == "/api/action-status":
+            action_id = parse_qs(parsed.query).get("id", [None])[0]
+            action = _get_action(action_id)
+            if action is None:
+                self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Action not found."})
+            else:
+                self._json(HTTPStatus.OK, {"ok": True, "action": action})
+            return
         relative = "index.html" if parsed.path == "/" else parsed.path.lstrip("/")
         target = (WEB / relative).resolve()
         try:
@@ -70,13 +106,19 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_POST(self) -> None:
+        action_id = self.headers.get("X-Kobo-Action") or uuid.uuid4().hex
+        _set_action(action_id, "queued", 0, "Waiting for the installer to start…")
         try:
             body = self._read_json()
             if not ACTION_LOCK.acquire(blocking=False):
                 raise core.InstallerError("Another installer action is already running.")
             try:
+                def progress(phase: str, percent: int | None, message: str, **_details) -> None:
+                    _set_action(action_id, phase, percent, message)
+
+                _set_action(action_id, "starting", 2, "Starting the requested action…")
                 if self.path == "/api/build":
-                    result = core.build_nickelmenu()
+                    result = core.build_font_package(progress=progress)
                 elif self.path == "/api/repair-upload":
                     result = core.repair_uploaded_nickelmenu(
                         body.get("filename", ""), body.get("archiveBase64", ""), body.get("version", "")
@@ -89,19 +131,27 @@ class Handler(BaseHTTPRequestHandler):
                     components = body.get("components")
                     if not isinstance(components, list):
                         raise core.InstallerError("components must be a list.")
-                    result = core.install_selected(components, body.get("devicePath"))
+                    result = core.install_selected(components, body.get("devicePath"), progress=progress)
                 elif self.path == "/api/eject":
                     result = core.safely_eject(body.get("devicePath"))
+                elif self.path == "/api/open-folder":
+                    result = core.open_device_folder(body.get("devicePath"))
+                elif self.path == "/api/choose-folder":
+                    result = core.choose_device_folder()
                 else:
                     self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Unknown action."})
                     return
             finally:
                 ACTION_LOCK.release()
-            self._json(HTTPStatus.OK, {"ok": True, "result": result, "status": core.device_status(body.get("devicePath"))})
+            _set_action(action_id, "complete", 100, result.get("message", "The action completed successfully."))
+            self._json(HTTPStatus.OK, {"ok": True, "actionId": action_id, "result": result, "status": core.device_status(body.get("devicePath"))})
         except (core.InstallerError, json.JSONDecodeError, ValueError) as exc:
-            self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": str(exc), "status": core.device_status(body.get("devicePath") if "body" in locals() else None)})
+            _set_action(action_id, "error", None, str(exc))
+            self._json(HTTPStatus.BAD_REQUEST, {"ok": False, "actionId": action_id, "error": str(exc), "status": core.device_status(body.get("devicePath") if "body" in locals() else None)})
         except Exception as exc:
-            self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"ok": False, "error": f"Unexpected error: {exc}"})
+            message = f"Unexpected error: {exc}"
+            _set_action(action_id, "error", None, message)
+            self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"ok": False, "actionId": action_id, "error": message})
 
 
 def _bind_server(host: str, port: int, attempts: int = 20) -> ThreadingHTTPServer:

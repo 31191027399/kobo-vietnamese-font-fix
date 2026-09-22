@@ -10,20 +10,37 @@
   <main class="shell">
     <header class="hero">
       <div>
-        <p class="eyebrow">Local Kobo setup</p>
-        <h1>Kobo Vietnamese Installer</h1>
-        <p class="lede">Install the Vietnamese font fix, KOReader, and SimpleUI on your Kobo in three simple steps.</p>
+        <p class="eyebrow" data-i18n="eyebrow">Vietnamese add-on</p>
+        <h1 data-i18n="title">Kobo Vietnamese Installer</h1>
+        <p class="lede" data-i18n="lede">Add Vietnamese fonts, the optional Kobo Vietnamese language, and English–Vietnamese dictionaries without replacing your Kobo tools or personal data.</p>
+        <label class="language-picker" for="language-select"><span data-i18n="language">Language</span>
+          <select id="language-select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="vi">Tiếng Việt</option>
+          </select>
+        </label>
       </div>
       <div class="device-card" aria-live="polite">
         <span id="device-dot" class="status-dot"></span>
         <div>
-          <strong id="device-title">Checking for Kobo…</strong>
-          <p id="device-detail">Connect the device by USB and tap Connect.</p>
-          <label id="device-selector-wrap" class="device-selector" hidden>Choose Kobo
+          <strong id="device-title" data-i18n="checking">Checking for Kobo…</strong>
+          <p id="device-detail" data-i18n="connect_prompt">Connect the device by USB and tap Connect.</p>
+          <div id="device-components" class="status-items" hidden></div>
+          <p id="device-path" hidden></p>
+          <label id="device-selector-wrap" class="device-selector" hidden><span data-i18n="choose_kobo">Choose Kobo</span>
             <select id="device-select" aria-label="Choose Kobo"></select>
           </label>
+          <div id="folder-path-wrap" class="device-selector" hidden>
+            <label for="folder-path" data-i18n="kobo_folder_path">Kobo folder path</label>
+            <input id="folder-path" type="text" data-i18n-placeholder="kobo_folder_placeholder" placeholder="Folder that contains a .kobo folder">
+            <button id="use-folder" class="button secondary compact" type="button" data-i18n="use_folder">Use this folder</button>
+          </div>
         </div>
-        <button id="refresh" class="button secondary compact" type="button">Check Kobo</button>
+        <div class="device-actions">
+          <button id="refresh" class="button secondary compact" type="button" data-i18n="check_kobo">Check Kobo</button>
+          <button id="open-folder" class="button secondary compact" type="button" hidden data-i18n="open_folder">Open Kobo folder</button>
+          <button id="choose-folder" class="button secondary compact" type="button" data-i18n="choose_folder">Choose Kobo folder</button>
+        </div>
       </div>
     </header>
 
@@ -31,75 +48,85 @@
       <article class="step-card">
         <div class="step-number">1</div>
         <div class="step-copy">
-          <p class="kicker">Connect</p>
-          <h2>Connect your Kobo by USB</h2>
-          <p>On the Kobo screen, tap <strong>Connect</strong>. Then choose <strong>Check Kobo</strong> above. Your books and reading progress stay on the device.</p>
-        </div>
-      </article>
-
-      <article class="step-card main-step">
-        <div class="step-number">2</div>
-        <div class="step-copy">
-          <p class="kicker">Install</p>
-          <h2>Install everything</h2>
-          <p>This installs the Vietnamese font fix, updates KOReader, and installs SimpleUI. A recovery backup is created automatically before any changes.</p>
-          <div class="facts" id="build-facts">Checking the installation package…</div>
-          <button id="install-all" class="button primary large" type="button" disabled>Install everything</button>
-          <p class="hint">For most Kobo H2O devices, this is the only button you need.</p>
+          <p class="kicker" data-i18n="optional_prerequisite">Optional prerequisite</p>
+          <h2 data-i18n="install_tools_first">Install tools first</h2>
+          <p data-i18n-html="tools_first_text">If you want NickelMenu or KOReader, install them with <a href="https://kp.nicoverbruggen.be" target="_blank" rel="noreferrer">KoboPatch Web UI</a>, safely eject, and let the Kobo restart. Then reconnect it and return here. Already installed? Continue below.</p>
         </div>
       </article>
 
       <article class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-copy">
+          <p class="kicker" data-i18n="connect">Connect</p>
+          <h2 data-i18n="connect_usb">Connect your Kobo by USB</h2>
+          <p data-i18n-html="connect_text">On the Kobo screen, tap <strong>Connect</strong>. Your books, reading progress, settings, and plugins stay on the device.</p>
+        </div>
+      </article>
+
+      <article class="step-card main-step">
         <div class="step-number">3</div>
         <div class="step-copy">
-          <p class="kicker">Eject</p>
-          <h2>Safely eject and restart</h2>
-          <p>After installation completes, eject the Kobo. Unplug the cable and let the Kobo restart. The Vietnamese fonts activate during that restart.</p>
-          <button id="eject" class="button secondary" type="button" disabled>Safely eject Kobo</button>
+          <p class="kicker" data-i18n="install">Install</p>
+          <h2 data-i18n="install_support">Install Vietnamese support</h2>
+          <p data-i18n="install_support_text">This installs the font fix, adds <strong>Extra: vi</strong> to Kobo’s language list, and installs the Kobo dictionary. If KOReader is already present, it also installs the KOReader dictionary. Existing target files are backed up first.</p>
+          <div class="facts" id="build-facts">Checking the installation package…</div>
+          <button id="install-all" class="button primary large" type="button" disabled data-i18n="install_support">Install Vietnamese support</button>
+          <p class="hint" data-i18n="dictionary_hint">Dictionary files are downloaded directly from redphx’s official release and verified before installation.</p>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-copy">
+          <p class="kicker" data-i18n="eject">Eject</p>
+          <h2 data-i18n="eject_restart">Safely eject and restart</h2>
+          <p data-i18n="eject_text">After installation completes, eject the Kobo. Unplug the cable and let the Kobo restart. The font and language pack activate during that restart.</p>
         </div>
       </article>
     </section>
 
     <details class="advanced">
-      <summary>Advanced options</summary>
+      <summary data-i18n="advanced">Advanced options</summary>
       <div class="advanced-content">
         <section>
-          <h2>Install only one item</h2>
-          <p>Use this only when repairing or updating part of the setup.</p>
+          <h2 data-i18n="install_one">Install only one item</h2>
+          <p data-i18n="install_one_text">Use this only when repairing or updating part of the setup.</p>
           <div class="choices">
-            <label class="choice"><input type="checkbox" name="component" value="nickelmenu" checked><span><strong>Vietnamese font fix</strong><small>For Kobo firmware 4.x</small></span></label>
-            <label class="choice"><input type="checkbox" name="component" value="koreader" checked><span><strong>KOReader</strong><small>Keeps your settings, history, and plugins</small></span></label>
-            <label class="choice"><input type="checkbox" name="component" value="simpleui" checked><span><strong>SimpleUI</strong><small>Includes Vietnamese translation</small></span></label>
+            <label class="choice"><input type="checkbox" name="component" value="fonts"><span><strong data-i18n="font_fix">Vietnamese font fix</strong><small data-i18n="font_fix_detail">Font-only KoboRoot.tgz for firmware 4.x</small></span></label>
+            <label class="choice"><input type="checkbox" name="component" value="language"><span><strong data-i18n="language_pack">Vietnamese language pack</strong><small data-i18n="language_pack_detail">Adds Extra: vi to Kobo’s Language and dictionaries list; installs Vietnamese translation support</small></span></label>
+            <label class="choice"><input type="checkbox" name="component" value="kobo_dictionary"><span><strong data-i18n="kobo_dictionary">Kobo dictionary</strong><small data-i18n="kobo_dictionary_detail">English–Vietnamese for the built-in reader</small></span></label>
+            <label class="choice"><input type="checkbox" name="component" value="koreader_dictionary"><span><strong data-i18n="koreader_dictionary">KOReader dictionary</strong><small data-i18n="koreader_dictionary_detail">Requires an existing KOReader installation</small></span></label>
           </div>
-          <button id="install-custom" class="button secondary" type="button" disabled>Install selected items</button>
+          <button id="install-custom" class="button secondary" type="button" disabled data-i18n="install_selected">Install selected items</button>
+          <p class="hint source-links">Sources: <a href="https://github.com/redphx/kobo-tieng-viet" target="_blank" rel="noreferrer">Kobo Tiếng Việt</a> · <a href="https://github.com/redphx/tudien" target="_blank" rel="noreferrer">redphx/tudien dictionaries</a> · <a href="https://github.com/nicoverbruggen/kobopatch-webui" target="_blank" rel="noreferrer">KoboPatch Web UI</a></p>
         </section>
         <section class="rebuild-section">
-          <h2>Rebuild the font package</h2>
-          <p>Only use this after changing the bundled source or fonts. Docker Desktop is required.</p>
-          <button id="build" class="button secondary" type="button">Rebuild KoboRoot.tgz</button>
+          <h2 data-i18n="rebuild_package">Rebuild the font package</h2>
+          <p data-i18n="rebuild_text">Creates a font-only KoboRoot.tgz from the 20 fonts sourced from Kobo Tiếng Việt by redphx. No compiler, Docker, NickelMenu, or KOReader is added.</p>
+          <button id="build" class="button secondary" type="button" data-i18n="rebuild_button">Rebuild KoboRoot.tgz</button>
         </section>
         <section class="upload-section">
-          <h2>Repair another NickelMenu version</h2>
-          <p>Choose that version’s <code>KoboRoot.tgz</code>. The installer keeps its NickelMenu files and adds the 16 Vietnamese fonts.</p>
-          <label class="file-picker" for="nickelmenu-upload">Choose KoboRoot.tgz<input id="nickelmenu-upload" type="file" accept=".tgz,application/gzip"></label>
-          <label class="version-label" for="nickelmenu-version">NickelMenu version <input id="nickelmenu-version" type="text" maxlength="64" placeholder="for example, 0.6.0"></label>
-          <button id="repair-upload" class="button secondary" type="button" disabled>Repair uploaded package</button>
-        </section>
-        <section class="upload-section">
-          <h2>Repair a KoboRoot.tgz only</h2>
-          <p>Use this for a custom KoboRoot.tgz that is not NickelMenu. It keeps every non-font file unchanged and adds the Vietnamese fonts. It does not install or update NickelMenu.</p>
-          <label class="file-picker" for="koboroot-upload">Choose KoboRoot.tgz<input id="koboroot-upload" type="file" accept=".tgz,application/gzip"></label>
-          <label class="version-label" for="koboroot-version">Package label <input id="koboroot-version" type="text" maxlength="64" placeholder="for example, custom font patch"></label>
-          <button id="repair-koboroot-upload" class="button secondary" type="button" disabled>Repair KoboRoot.tgz only</button>
+          <h2 data-i18n="repair_package">Repair a KoboRoot.tgz only</h2>
+          <p data-i18n="repair_text">Use this for a custom KoboRoot.tgz that is not NickelMenu. It keeps every non-font file unchanged and adds the Vietnamese fonts. It does not install or update NickelMenu.</p>
+          <label class="file-picker" for="koboroot-upload" data-i18n="choose_koboroot">Choose KoboRoot.tgz<input id="koboroot-upload" type="file" accept=".tgz,application/gzip"></label>
+          <label class="version-label" for="koboroot-version" data-i18n="package_label">Package label <input id="koboroot-version" type="text" maxlength="64" data-i18n-placeholder="package_placeholder" placeholder="for example, custom font patch"></label>
+          <button id="repair-koboroot-upload" class="button secondary" type="button" disabled data-i18n="repair_button">Repair KoboRoot.tgz only</button>
         </section>
       </div>
     </details>
 
     <section class="console-card" aria-live="polite">
-      <div class="console-head"><div><p class="kicker">Progress</p><h2>Installer status</h2></div><span id="busy-badge" class="badge">Ready</span></div>
-      <p id="log">Connect your Kobo, then choose Install everything.</p>
+      <div class="console-head"><div><p class="kicker" data-i18n="progress">Progress</p><h2 data-i18n="installer_status">Installer status</h2></div><span id="busy-badge" class="badge" data-i18n="ready">Ready</span></div>
+      <div class="progress-wrap" aria-live="polite">
+        <div class="progress-meta"><strong id="action-phase" data-i18n="ready">Ready</strong><span id="action-percent">0%</span></div>
+        <div class="progress-track" role="progressbar" aria-label="Installer progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="action-progress"></div></div>
+        <p id="action-detail" data-i18n="initial_status">Connect your Kobo, then choose Install Vietnamese support.</p>
+      </div>
+      <p id="log" hidden data-i18n="initial_status">Connect your Kobo, then choose Install Vietnamese support.</p>
     </section>
-    <footer><p>This tool runs only on this Mac. Nothing from your Kobo is uploaded.</p></footer>
+    <footer>
+      <p><a href="https://github.com/31191027399/kobo-vietnamese-font-fix/blob/main/README.vi.md" target="_blank" rel="noreferrer" data-i18n="vietnamese_guide">Hướng dẫn tiếng Việt</a> · <span data-i18n-html="footer">Runs locally; nothing from your Kobo is uploaded. Fonts and language support are sourced from <a href="https://github.com/redphx/kobo-tieng-viet">Kobo Tiếng Việt by redphx</a>. Dictionaries by <a href="https://github.com/redphx/tudien">redphx/tudien</a>. Prerequisite workflow by <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI by Nico Verbruggen</a>.</span></p>
+    </footer>
   </main>
   <script src="/app.js" defer></script>
 </body>
