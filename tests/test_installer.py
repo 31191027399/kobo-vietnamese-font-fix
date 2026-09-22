@@ -142,6 +142,59 @@ class InstallerTests(unittest.TestCase):
             with tarfile.open(package, "r:gz") as archive:
                 self.assertEqual(archive.extractfile("etc/custom-patch.conf").read(), b"custom-patch-content")
 
+    def test_repair_keeps_everything_except_the_16_vietnamese_fonts(self):
+        with tempfile.TemporaryDirectory() as value:
+            root = Path(value)
+            source = root / "KoboRoot.tgz"
+            entries = {
+                "usr/local/Kobo/imageformats/libnm.so": b"libnm",
+                "mnt/onboard/.adds/nm/doc": b"doc",
+                "usr/local/Kobo/custom-patch.conf": b"custom",
+                core.FONT_DESTINATION + "/Kobo-Nickel.ttf": b"unrelated-font",
+                core.FONT_DESTINATION + "/notes.txt": b"notes",
+                core.FONT_DESTINATION + "/Avenir.ttf": b"stale-vietnamese-font",
+            }
+            with tarfile.open(source, "w:gz") as archive:
+                for name, payload in entries.items():
+                    info = tarfile.TarInfo(name)
+                    info.size = len(payload)
+                    info.mode = 0o600
+                    info.uid = info.gid = 7
+                    info.uname = info.gname = "root"
+                    info.mtime = 123456789
+                    archive.addfile(info, io.BytesIO(payload))
+            package = root / "repaired-KoboRoot.tgz"
+            with mock.patch.object(core, "NICKELMENU_PACKAGE", package), mock.patch.object(
+                core, "NICKELMENU_METADATA", root / "meta.json"
+            ), mock.patch.object(core, "NICKELMENU_CHECKSUM", root / "sum"):
+                result = core.repair_uploaded_koboroot(
+                    "KoboRoot.tgz", base64.b64encode(source.read_bytes()).decode("ascii"), "custom"
+                )
+            self.assertEqual(result["fonts"], 16)
+            expected_fonts = {font.name: font.read_bytes() for font in core.VIETNAMESE_FONTS.glob("*.ttf")}
+            preserved = {name: payload for name, payload in entries.items() if name not in
+                         {core.FONT_DESTINATION + "/" + font for font in expected_fonts}}
+            with tarfile.open(package, "r:gz") as archive:
+                found = {}
+                for member in archive.getmembers():
+                    clean = member.name.removeprefix("./")
+                    found[clean] = (member, archive.extractfile(member).read() if member.isfile() else None)
+                for name, payload in preserved.items():
+                    self.assertIn(name, found)
+                    member, stored = found[name]
+                    self.assertEqual(stored, payload)
+                    self.assertEqual(
+                        (member.mode, member.uid, member.gid, member.uname, member.gname, member.mtime),
+                        (0o600, 7, 7, "root", "root", 123456789),
+                    )
+                for name, payload in expected_fonts.items():
+                    member, stored = found[core.FONT_DESTINATION + "/" + name]
+                    self.assertEqual(stored, payload)
+                    self.assertEqual(
+                        (member.uid, member.gid, member.uname, member.gname, member.mode),
+                        (0, 0, "root", "root", 0o644),
+                    )
+
     def test_existing_device_install_flow(self):
         with tempfile.TemporaryDirectory() as value:
             root = Path(value)

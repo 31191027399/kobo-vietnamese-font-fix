@@ -211,13 +211,16 @@ def validate_font_overlay_archive(path: Path, require_nickelmenu: bool = False) 
             if clean == "mnt/onboard/.adds/nm/doc":
                 found_doc = member.isfile() and member.size > 0
             prefix = FONT_DESTINATION + "/"
-            if clean.startswith(prefix) and member.isfile():
+            if clean.startswith(prefix) and member.isfile() and pure.name in expected_fonts:
                 extracted = archive.extractfile(member)
                 if extracted is None:
                     raise InstallerError(f"Could not read font entry: {member.name}")
-                found_fonts[PurePosixPath(clean).name] = hashlib.sha256(extracted.read()).hexdigest()
+                found_fonts[pure.name] = hashlib.sha256(extracted.read()).hexdigest()
     if require_nickelmenu and (not found_library or not found_doc):
         raise InstallerError("The package is missing NickelMenu's library or documentation.")
+    missing = sorted(set(expected_fonts) - set(found_fonts))
+    if missing:
+        raise InstallerError(f"The package is missing {len(missing)} of the 16 Vietnamese source fonts.")
     if found_fonts != expected_fonts:
         raise InstallerError("The package font payload does not match the 16 Vietnamese source fonts.")
     return {
@@ -271,6 +274,8 @@ def _repair_uploaded_archive(filename: str, archive_base64: str, version: str, r
     fonts = sorted(VIETNAMESE_FONTS.glob("*.ttf"))
     if len(fonts) != 16:
         raise InstallerError(f"Expected 16 Vietnamese fonts, found {len(fonts)}.")
+    font_names = {font.name for font in fonts}
+    font_prefix = FONT_DESTINATION + "/"
     BUILD.mkdir(parents=True, exist_ok=True)
     temporary = NICKELMENU_PACKAGE.with_suffix(".tgz.installing")
     try:
@@ -279,22 +284,24 @@ def _repair_uploaded_archive(filename: str, archive_base64: str, version: str, r
             with tarfile.open(temporary, "w:gz") as destination:
                 for member in members:
                     clean = member.name.removeprefix("./")
-                    if clean.startswith(FONT_DESTINATION + "/"):
+                    if clean.startswith(font_prefix) and PurePosixPath(clean).name in font_names:
                         continue
-                    info = tarfile.TarInfo(clean)
-                    info.mode = member.mode
-                    info.mtime = member.mtime
                     if member.isdir():
-                        info.type = tarfile.DIRTYPE
-                        destination.addfile(info)
-                    else:
-                        payload = source.extractfile(member)
-                        if payload is None:
-                            raise InstallerError(f"Could not read archive entry: {member.name}")
-                        info.size = member.size
-                        destination.addfile(info, payload)
+                        destination.addfile(member)
+                        continue
+                    payload = source.extractfile(member)
+                    if payload is None:
+                        raise InstallerError(f"Could not read archive entry: {member.name}")
+                    destination.addfile(member, payload)
                 for font in fonts:
-                    destination.add(font, arcname=f"{FONT_DESTINATION}/{font.name}", recursive=False)
+                    info = tarfile.TarInfo(f"{font_prefix}{font.name}")
+                    info.size = font.stat().st_size
+                    info.mode = 0o644
+                    info.mtime = int(font.stat().st_mtime)
+                    info.uname = "root"
+                    info.gname = "root"
+                    with font.open("rb") as handle:
+                        destination.addfile(info, handle)
     except tarfile.TarError as exc:
         raise InstallerError("The uploaded file is not a readable gzip tar archive.") from exc
     try:
