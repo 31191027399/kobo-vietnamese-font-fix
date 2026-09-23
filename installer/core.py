@@ -338,7 +338,7 @@ def validate_language_overlay_archive(path: Path) -> dict:
         raise InstallerError(f"The Vietnamese language package is missing: {', '.join(missing)}")
     if found != expected:
         raise InstallerError("The Vietnamese language payload does not match redphx's verified release.")
-    return {"languageFiles": len(found)}
+    return {"languageFiles": len(found), "sha256": sha256_file(path)}
 
 
 def validate_nickelmenu_archive(path: Path) -> dict:
@@ -465,8 +465,7 @@ def build_font_package(progress=None, include_language=False, include_fonts=True
     with tarfile.open(temporary, "w:gz") as archive:
         for font in [*fonts, *mono_fonts]:
             destination = FONT_DESTINATION if font in fonts else MONO_FONT_DESTINATION
-            info = tarfile.TarInfo(f"{FONT_DESTINATION}/{font.name}")
-            info.name = f"{destination}/{font.name}"
+            info = tarfile.TarInfo(f"{destination}/{font.name}")
             info.size = font.stat().st_size
             info.mode = 0o644
             info.mtime = int(font.stat().st_mtime)
@@ -584,6 +583,9 @@ def install_fonts(device: Path | None = None, progress=None, include_language=Fa
 
 def install_language(device: Path | None = None, progress=None) -> dict:
     device = device or require_device()
+    version = firmware_version(device)
+    if not firmware_supported(version):
+        raise InstallerError(f"The Vietnamese language pack supports Kobo firmware 4.x; detected {version or 'unknown'}.")
     details = validate_language_overlay_archive(NICKELMENU_PACKAGE)
     if progress:
         progress("backing_up", 45, "Backing up the existing staged KoboRoot.tgz…")
@@ -901,6 +903,8 @@ def install_selected(components: list[str], device_path: str | None = None, prog
     if not components or any(component not in allowed for component in components):
         raise InstallerError("Select at least one valid component.")
     device = require_device(device_path)
+    if ("fonts" in components or "language" in components) and not firmware_supported(firmware_version(device)):
+        raise InstallerError("Vietnamese fonts and language support require Kobo firmware 4.x. Select a dictionary instead.")
     if "koreader_dictionary" in components and not (device / ".adds" / "koreader").is_dir():
         raise InstallerError(
             "KOReader is not installed. Install it first with KoboPatch Web UI, then run this installer again."
@@ -909,8 +913,16 @@ def install_selected(components: list[str], device_path: str | None = None, prog
         progress("preparing", 5, "Checking the selected Vietnamese components…")
     _prepare_dictionary_assets(components, progress)
     if "fonts" in components or "language" in components:
+        def package_progress(phase: str, percent: int | None, message: str, **details) -> None:
+            if not progress:
+                return
+            if phase == "complete":
+                progress("preparing", 40, "Vietnamese package prepared; installing selected components…")
+            else:
+                progress(phase, min(percent, 40) if percent is not None else None, message, **details)
+
         build_font_package(
-            progress=progress,
+            progress=package_progress if progress else None,
             include_language="language" in components,
             include_fonts="fonts" in components,
         )

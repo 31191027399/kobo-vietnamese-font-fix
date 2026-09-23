@@ -26,6 +26,8 @@ with sync_playwright() as playwright:
     assert page.locator("h1").inner_text() == "Bộ cài tiếng Việt cho Kobo"
     assert page.get_by_role("button", name="Cài hỗ trợ tiếng Việt").is_enabled()
     assert page.locator("#action-phase").inner_text() == "Sẵn sàng"
+    assert page.locator("#koboroot-upload").count() == 1
+    assert page.locator("#koboroot-version").count() == 1
     page.select_option("#language-select", "en")
     assert page.locator("h1").inner_text() == "Kobo Vietnamese Installer"
     assert page.get_by_text("Advanced options").is_visible()
@@ -35,6 +37,11 @@ with sync_playwright() as playwright:
     assert page.get_by_text("KOReader dictionary", exact=True).is_visible()
     assert page.get_by_text("Repair a KoboRoot.tgz only").is_visible()
     assert page.get_by_role("button", name="Repair KoboRoot.tgz only").is_disabled()
+    page.locator('input[value="language"]').check()
+    assert not page.locator('input[value="fonts"]').is_checked()
+    assert page.locator("#install-custom").is_enabled()
+    page.set_viewport_size({"width": 320, "height": 740})
+    assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
     page.screenshot(path=str(output), full_page=True)
     assert not errors, errors
     browser.close()

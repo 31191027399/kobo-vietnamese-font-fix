@@ -2,7 +2,7 @@
 
 ## Scope
 
-The active install API accepts only `fonts`, `kobo_dictionary`, and `koreader_dictionary`. It never installs or updates NickelMenu, KOReader, SimpleUI, translations, keyboard support, or unrelated tools.
+The active install API accepts `fonts`, `language`, `kobo_dictionary`, and `koreader_dictionary`. Fonts and language support may be selected separately or together. It never installs or updates NickelMenu, KOReader, SimpleUI, keyboard support, or unrelated tools.
 
 Legacy helper functions and vendored sources remain temporarily for backward compatibility and repository history, but the browser flow cannot invoke them.
 
@@ -15,7 +15,7 @@ All 20 generated fonts are copied unchanged from [redphx/kobo-tieng-viet](https:
 - 16 Avenir, Georgia, Rakuten Sans, and Rakuten Serif replacements under `usr/local/Trolltech/QtEmbedded-4.6.2-arm/lib/fonts/`.
 - 4 Courier-compatible fonts under `mnt/onboard/fonts/` for correct monospace rendering.
 
-It excludes every non-font item from the upstream package, including `libtiengviet.so`, `trans_vi.qm`, `update_conf.sh`, its udev rule, and install markers. The result is intentionally font-only.
+The standalone rebuild is font-only. During installation, the selected language option adds `libtiengviet.so`, `trans_vi.qm`, `update_conf.sh`, and its udev rule to the staged package. A language-only selection contains those files without fonts.
 
 The validator checks each source and archive font by SHA-256. Installation is limited to firmware 4.x, backs up an existing staged `.kobo/KoboRoot.tgz`, atomically copies the archive, and verifies the copied hash. No compiler or container is involved.
 

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tải bộ cài tiếng Việt cho Kobo để thêm font, giao diện tiếng Việt và từ điển Anh–Việt bằng máy tính của bạn.">
+  <title>Bộ cài tiếng Việt cho Kobo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="site-wrap">
+    <header class="site-header">
+      <a class="brand" href="/vi.html" aria-label="Trang chủ bộ cài tiếng Việt cho Kobo">Kobo <span>Tiếng Việt</span></a>
+      <nav aria-label="Điều hướng">
+        <a href="#cach-cai">Cách cài</a>
+        <a href="#nguon">Nguồn</a>
+        <a href="/" lang="en">English</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Hỗ trợ tiếng Việt cho Kobo</p>
+          <h1 id="hero-title">Đọc và sử dụng Kobo bằng tiếng Việt dễ dàng hơn.</h1>
+          <p class="lead">Thêm font tiếng Việt, giao diện tiếng Việt tùy chọn và từ điển Anh–Việt bằng bộ cài chạy trên máy tính của bạn.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/archive/refs/heads/vercel.zip">Tải bộ cài <span aria-hidden="true">↓</span></a>
+            <a class="button secondary" href="#cach-cai">Xem cách cài</a>
+          </div>
+          <p class="download-note">Miễn phí, mã nguồn mở · Cần Python 3 · macOS, Windows hoặc Linux</p>
+        </div>
+        <aside class="device-preview" aria-label="Các thành phần có thể cài">
+          <span class="preview-top">Chọn thành phần bạn cần</span>
+          <div class="preview-item"><span class="preview-mark" aria-hidden="true">✓</span><span><strong>Font tiếng Việt</strong><small>Hiển thị tốt hơn trong sách và giao diện</small></span></div>
+          <div class="preview-item"><span class="preview-mark" aria-hidden="true">✓</span><span><strong>Ngôn ngữ giao diện</strong><small>Thêm Extra: vi trên firmware hỗ trợ</small></span></div>
+          <div class="preview-item"><span class="preview-mark" aria-hidden="true">✓</span><span><strong>Từ điển Anh–Việt</strong><small>Cho Kobo và KOReader đã cài sẵn</small></span></div>
+        </aside>
+      </section>
+
+      <section class="notice" aria-label="Yêu cầu cài đặt">
+        <span class="notice-icon" aria-hidden="true">i</span>
+        <p><strong>Bộ cài chạy trên máy tính của bạn.</strong> Trang web này giúp bạn tải bộ cài. Hãy mở bộ cài trên máy tính để kết nối với Kobo qua USB.</p>
+      </section>
+
+      <section class="section" id="cach-cai" aria-labelledby="steps-title">
+        <p class="eyebrow">Bốn bước đơn giản</p>
+        <h2 id="steps-title">Cách cài đặt</h2>
+        <div class="steps">
+          <article class="step"><span class="step-number">01</span><h3>Tải và mở bộ cài</h3><p>Giải nén tệp ZIP. Trên macOS, chạy <code>zsh start.command</code>. Trên Windows, nhấp đúp <code>start.bat</code>. Trên Linux, chạy <code>python3 server.py</code>.</p></article>
+          <article class="step"><span class="step-number">02</span><h3>Kết nối Kobo</h3><p>Cắm cáp USB và chọn <strong>Connect</strong> trên màn hình Kobo. Kiểm tra bộ cài đã nhận đúng thiết bị.</p></article>
+          <article class="step"><span class="step-number">03</span><h3>Chọn và cài đặt</h3><p>Chọn <strong>Cài hỗ trợ tiếng Việt</strong> để cài các mục được đề xuất, hoặc mở Tùy chọn nâng cao để chọn từng thành phần. Giữ kết nối USB đến khi bộ cài báo Hoàn tất.</p></article>
+          <article class="step"><span class="step-number">04</span><h3>Tháo an toàn</h3><p>Tháo Kobo bằng Finder hoặc trình quản lý tệp. Chờ thiết bị biến mất, rút cáp và chờ Kobo khởi động lại xong.</p></article>
+        </div>
+        <p class="footnote">Font và gói ngôn ngữ cần firmware Kobo 4.x. Muốn cài từ điển KOReader, hãy cài KOReader trước.</p>
+      </section>
+
+      <section class="section credits" id="nguon" aria-labelledby="credits-title">
+        <p class="eyebrow">Ghi công tác giả</p>
+        <h2 id="credits-title">Nguồn dự án</h2>
+        <p>Font và gói ngôn ngữ lấy từ <a href="https://github.com/redphx/kobo-tieng-viet">Kobo Tiếng Việt của redphx</a>. Từ điển lấy từ <a href="https://github.com/redphx/tudien">redphx/tudien</a>. Xem <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI của Nico Verbruggen</a> nếu cần cài thêm công cụ cho Kobo.</p>
+        <a class="text-link" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/blob/vercel/README.vi.md">Xem mã nguồn và hướng dẫn đầy đủ <span aria-hidden="true">↗</span></a>
+      </section>
+    </main>
+    <footer>Dự án cộng đồng độc lập · Dữ liệu trên Kobo được giữ trên máy tính của bạn.</footer>
+  </div>
+</body>
+</html>

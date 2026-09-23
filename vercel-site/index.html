@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Download and run the Kobo Vietnamese Installer on your computer to add Vietnamese fonts, language support, and dictionaries.">
+  <title>Kobo Vietnamese Installer</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="site-wrap">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Kobo Vietnamese Installer home">Kobo <span>Tiếng Việt</span></a>
+      <nav aria-label="Page navigation">
+        <a href="#how-it-works">How it works</a>
+        <a href="#credits">Credits</a>
+        <a href="/vi.html" lang="vi">Tiếng Việt</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Vietnamese support for Kobo</p>
+          <h1 id="hero-title">Make your Kobo feel at home in Vietnamese.</h1>
+          <p class="lead">Add Vietnamese fonts, an optional interface language, and English–Vietnamese dictionaries with a guided installer that runs on your computer.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/archive/refs/heads/vercel.zip">Download installer <span aria-hidden="true">↓</span></a>
+            <a class="button secondary" href="#how-it-works">See the steps</a>
+          </div>
+          <p class="download-note">Free and open source · Requires Python 3 · macOS, Windows, or Linux</p>
+        </div>
+        <aside class="device-preview" aria-label="Available components">
+          <span class="preview-top">Choose what you need</span>
+          <div class="preview-item"><span class="preview-mark" aria-hidden="true">✓</span><span><strong>Vietnamese fonts</strong><small>Better titles, menus, and book text</small></span></div>
+          <div class="preview-item"><span class="preview-mark" aria-hidden="true">✓</span><span><strong>Interface language</strong><small>Adds Extra: vi on supported firmware</small></span></div>
+          <div class="preview-item"><span class="preview-mark" aria-hidden="true">✓</span><span><strong>English–Vietnamese dictionaries</strong><small>For Kobo and an existing KOReader</small></span></div>
+        </aside>
+      </section>
+
+      <section class="notice" aria-label="Installation requirement">
+        <span class="notice-icon" aria-hidden="true">i</span>
+        <p><strong>Installation happens on your computer.</strong> This website helps you download the installer. Open it locally so it can access your Kobo over USB.</p>
+      </section>
+
+      <section class="section" id="how-it-works" aria-labelledby="steps-title">
+        <p class="eyebrow">A simple path</p>
+        <h2 id="steps-title">Install in four steps</h2>
+        <div class="steps">
+          <article class="step"><span class="step-number">01</span><h3>Download and open</h3><p>Extract the ZIP. On macOS, run <code>zsh start.command</code>. On Windows, double-click <code>start.bat</code>. On Linux, run <code>python3 server.py</code>.</p></article>
+          <article class="step"><span class="step-number">02</span><h3>Connect your Kobo</h3><p>Connect it with a USB cable, then tap <strong>Connect</strong> on the Kobo screen. Check that the installer shows the correct device.</p></article>
+          <article class="step"><span class="step-number">03</span><h3>Choose and install</h3><p>Use <strong>Install Vietnamese support</strong> for the recommended set, or open Advanced options to select individual components. Keep the cable connected until installation says Complete.</p></article>
+          <article class="step"><span class="step-number">04</span><h3>Eject and restart</h3><p>Eject the Kobo in Finder or your file manager. Wait for it to disappear, unplug the cable, and let the Kobo finish restarting.</p></article>
+        </div>
+        <p class="footnote">Fonts and interface language require Kobo firmware 4.x. The KOReader dictionary requires KOReader to be installed first.</p>
+      </section>
+
+      <section class="section credits" id="credits" aria-labelledby="credits-title">
+        <p class="eyebrow">Built on original work</p>
+        <h2 id="credits-title">Sources and credits</h2>
+        <p>Fonts and language support come from <a href="https://github.com/redphx/kobo-tieng-viet">Kobo Tiếng Việt by redphx</a>. Dictionaries come from <a href="https://github.com/redphx/tudien">redphx/tudien</a>. For optional Kobo tools, see <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI by Nico Verbruggen</a>.</p>
+        <a class="text-link" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">View installer source and full documentation <span aria-hidden="true">↗</span></a>
+      </section>
+    </main>
+    <footer>Independent community project · Your Kobo data stays on your computer.</footer>
+  </div>
+</body>
+</html>
