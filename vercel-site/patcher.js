@@ -15,6 +15,18 @@
   let koboRoot = null;
   let deviceInfo = null;
 
+  // Official Kobo model-number mapping. The selected version file contains
+  // the model ID (for example N87315B090037), so use its Nxxx prefix.
+  const modelNames = {
+    N428: "Kobo Libra Colour", N367: "Kobo Clara Colour", N365: "Kobo Clara BW", P365: "Kobo Clara BW",
+    N605: "Kobo Elipsa 2E", N506: "Kobo Clara 2E", N778: "Kobo Sage", N778K: "Kobo Sage",
+    N418: "Kobo Libra 2", N604: "Kobo Elipsa", N306: "Kobo Nia", N873: "Kobo Libra H2O",
+    N782: "Kobo Forma", N249: "Kobo Clara HD", N867: "Kobo Aura H2O Edition 2", N709: "Kobo Aura ONE",
+    N236: "Kobo Aura Edition 2", N587: "Kobo Touch 2.0", N437: "Kobo Glo HD", N250: "Kobo Aura H2O",
+    N514: "Kobo Aura", N204: "Kobo Aura HD", N613: "Kobo Glo", N905: "Kobo Touch",
+    N705: "Kobo Mini", N416: "Kobo Original", N647: "Kobo Wireless", N47B: "Kobo Wireless",
+  };
+
   const text = {
     unsupported: vi ? "Trình duyệt này chưa hỗ trợ chọn thư mục. Hãy dùng Chrome hoặc Edge trên HTTPS." : "This browser cannot choose a folder. Use Chrome or Edge on HTTPS.",
     cancelled: vi ? "Bạn chưa chọn thư mục Kobo." : "No Kobo folder selected.",
@@ -103,14 +115,17 @@
     const kobo = await handle.getDirectoryHandle(".kobo");
     const versionHandle = await kobo.getFileHandle("version");
     const raw = await (await versionHandle.getFile()).text();
-    const model = raw.split(",", 1)[0].trim() || "Kobo";
+    const modelId = raw.split(",", 1)[0].trim() || "Kobo";
+    const modelCode = modelId.match(/^(?:N|P)\d{3}K?/i)?.[0].toUpperCase();
+    const modelName = modelNames[modelCode] || (vi ? "Model Kobo chưa xác định" : "Unknown Kobo model");
     const match = raw.match(/\b\d+\.\d+\.\d+\b/g);
     const firmware = match ? match[match.length - 1] : null;
     const supported = Boolean(firmware && firmware.startsWith("4."));
-    deviceInfo = { model, firmware, supported };
+    deviceInfo = { modelId, modelCode, modelName, firmware, supported };
     deviceDetails.hidden = false;
     deviceDetails.dataset.state = supported ? "ok" : "warning";
-    deviceModel.textContent = model;
+    deviceModel.textContent = modelId;
+    $("#device-model-name").textContent = modelName;
     deviceFirmware.textContent = firmware || (vi ? "Không xác định" : "Unknown");
     deviceCompatibility.textContent = firmware ? (supported ? text.firmwareSupported : text.firmwareUnsupported) : text.firmwareUnknown;
     return kobo;
