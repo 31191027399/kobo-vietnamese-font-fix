@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Tải bộ cài tiếng Việt cho Kobo để thêm font, giao diện tiếng Việt và từ điển Anh–Việt bằng máy tính của bạn.">
+  <meta name="description" content="Cài trực tiếp font, giao diện và từ điển tiếng Việt lên Kobo từ trình duyệt bảo mật.">
   <title>Bộ cài tiếng Việt cho Kobo</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
@@ -23,12 +23,12 @@
         <div class="hero-copy">
           <p class="eyebrow">Hỗ trợ tiếng Việt cho Kobo</p>
           <h1 id="hero-title">Đọc và sử dụng Kobo bằng tiếng Việt dễ dàng hơn.</h1>
-          <p class="lead">Thêm font tiếng Việt, giao diện tiếng Việt tùy chọn và từ điển Anh–Việt bằng bộ cài chạy trên máy tính của bạn.</p>
+          <p class="lead">Kết nối Kobo, chọn thành phần cần dùng và ghi trực tiếp vào thiết bị ngay trên trang web.</p>
           <div class="hero-actions">
-            <a class="button primary" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/archive/refs/heads/vercel.zip">Tải bộ cài <span aria-hidden="true">↓</span></a>
+            <a class="button primary" href="#patch">Cài trực tiếp lên Kobo <span aria-hidden="true">→</span></a>
             <a class="button secondary" href="#cach-cai">Xem cách cài</a>
           </div>
-          <p class="download-note">Miễn phí, mã nguồn mở · Cần Python 3 · macOS, Windows hoặc Linux</p>
+          <p class="download-note">Miễn phí, mã nguồn mở · Cần Chrome hoặc Edge · Trang HTTPS</p>
         </div>
         <aside class="device-preview" aria-label="Các thành phần có thể cài">
           <span class="preview-top">Chọn thành phần bạn cần</span>
@@ -38,21 +38,44 @@
         </aside>
       </section>
 
-      <section class="notice" aria-label="Yêu cầu cài đặt">
+      <section class="notice" aria-label="Yêu cầu trình duyệt">
         <span class="notice-icon" aria-hidden="true">i</span>
-        <p><strong>Bộ cài chạy trên máy tính của bạn.</strong> Trang web này giúp bạn tải bộ cài. Hãy mở bộ cài trên máy tính để kết nối với Kobo qua USB.</p>
+        <p><strong>Dùng Chrome hoặc Edge trên HTTPS.</strong> Trình duyệt sẽ yêu cầu bạn chọn thư mục Kobo đang được gắn USB. Chỉ ghi dữ liệu sau khi bạn chọn thiết bị và bấm Cài.</p>
+      </section>
+
+      <section class="patch-panel" id="patch" aria-labelledby="patch-title">
+        <div class="patch-heading">
+          <p class="eyebrow">Cài trực tiếp bằng trình duyệt</p>
+          <h2 id="patch-title">Cài lên Kobo không cần tải bộ cài</h2>
+          <p>Cắm Kobo bằng USB, chọn <strong>Connect</strong> trên màn hình Kobo, rồi chọn ổ Kobo bên dưới. Mỗi thành phần có thể cài độc lập.</p>
+        </div>
+        <div class="patch-status" id="device-status" role="status" aria-live="polite">Chưa chọn thư mục Kobo.</div>
+        <div class="patch-actions">
+          <button class="button primary" id="choose-kobo" type="button">Chọn thư mục Kobo</button>
+          <button class="button secondary" id="patch-selected" type="button" disabled>Cài các mục đã chọn</button>
+        </div>
+        <p class="support-warning" id="browser-warning" hidden>Cài trực tiếp cần Chrome hoặc Edge trên trang HTTPS. Nếu trình duyệt không hỗ trợ, hãy dùng <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">bộ cài máy tính</a>.</p>
+        <fieldset class="component-list">
+          <legend>Chọn thành phần</legend>
+          <label class="component-option"><input type="checkbox" name="component" value="fonts" checked><span><strong>Font tiếng Việt</strong><small>Gói font cho firmware 4.x</small></span></label>
+          <label class="component-option"><input type="checkbox" name="component" value="language"><span><strong>Giao diện tiếng Việt</strong><small>Thêm Extra: vi trên firmware 4.x</small></span></label>
+          <label class="component-option"><input type="checkbox" name="component" value="kobo-dictionary"><span><strong>Từ điển Anh–Việt cho Kobo</strong><small>Cài vào <code>.kobo/custom-dict</code></small></span></label>
+          <label class="component-option"><input type="checkbox" name="component" value="koreader-dictionary"><span><strong>Từ điển Anh–Việt cho KOReader</strong><small>Cần cài KOReader trước</small></span></label>
+        </fieldset>
+        <div class="progress-wrap" id="patch-progress" hidden><div class="progress-bar"><span id="progress-bar-fill"></span></div><p id="progress-label"></p></div>
+        <ol class="aftercare"><li>Chờ trang báo đã cài xong.</li><li>Dùng Finder hoặc trình quản lý tệp để tháo Kobo thủ công.</li><li>Rút cáp và chờ Kobo khởi động lại. Trình duyệt không thể tự tháo thiết bị USB.</li></ol>
       </section>
 
       <section class="section" id="cach-cai" aria-labelledby="steps-title">
         <p class="eyebrow">Bốn bước đơn giản</p>
         <h2 id="steps-title">Cách cài đặt</h2>
         <div class="steps">
-          <article class="step"><span class="step-number">01</span><h3>Tải và mở bộ cài</h3><p>Giải nén tệp ZIP. Trên macOS, chạy <code>zsh start.command</code>. Trên Windows, nhấp đúp <code>start.bat</code>. Trên Linux, chạy <code>python3 server.py</code>.</p></article>
+          <article class="step"><span class="step-number">01</span><h3>Mở Chrome hoặc Edge</h3><p>Dùng trang HTTPS đã triển khai. Quyền truy cập thư mục hiện được hỗ trợ tốt nhất trên trình duyệt Chromium.</p></article>
           <article class="step"><span class="step-number">02</span><h3>Kết nối Kobo</h3><p>Cắm cáp USB và chọn <strong>Connect</strong> trên màn hình Kobo. Kiểm tra bộ cài đã nhận đúng thiết bị.</p></article>
-          <article class="step"><span class="step-number">03</span><h3>Chọn và cài đặt</h3><p>Chọn <strong>Cài hỗ trợ tiếng Việt</strong> để cài các mục được đề xuất, hoặc mở Tùy chọn nâng cao để chọn từng thành phần. Giữ kết nối USB đến khi bộ cài báo Hoàn tất.</p></article>
+          <article class="step"><span class="step-number">03</span><h3>Chọn và cài</h3><p>Chọn các mục độc lập rồi bấm <strong>Cài các mục đã chọn</strong>. Giữ USB đến khi trang báo Đã cài.</p></article>
           <article class="step"><span class="step-number">04</span><h3>Tháo an toàn</h3><p>Tháo Kobo bằng Finder hoặc trình quản lý tệp. Chờ thiết bị biến mất, rút cáp và chờ Kobo khởi động lại xong.</p></article>
         </div>
-        <p class="footnote">Font và gói ngôn ngữ cần firmware Kobo 4.x. Muốn cài từ điển KOReader, hãy cài KOReader trước.</p>
+        <p class="footnote">Font và gói ngôn ngữ cần firmware Kobo 4.x. Muốn cài từ điển KOReader, hãy cài KOReader trước. Nên sao lưu Kobo trước khi thay đổi.</p>
       </section>
 
       <section class="section credits" id="nguon" aria-labelledby="credits-title">
@@ -62,7 +85,8 @@
         <a class="text-link" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/blob/vercel/README.vi.md">Xem mã nguồn và hướng dẫn đầy đủ <span aria-hidden="true">↗</span></a>
       </section>
     </main>
-    <footer>Dự án cộng đồng độc lập · Dữ liệu trên Kobo được giữ trên máy tính của bạn.</footer>
+    <footer>Dự án cộng đồng độc lập · Trang chỉ ghi vào thư mục Kobo mà bạn chủ động chọn.</footer>
   </div>
+  <script src="/patcher.js" defer></script>
 </body>
 </html>

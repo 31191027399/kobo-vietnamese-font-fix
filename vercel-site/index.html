@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Download and run the Kobo Vietnamese Installer on your computer to add Vietnamese fonts, language support, and dictionaries.">
+  <meta name="description" content="Patch your Kobo directly from a secure browser with Vietnamese fonts, language support, and dictionaries.">
   <title>Kobo Vietnamese Installer</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
@@ -23,9 +23,9 @@
         <div class="hero-copy">
           <p class="eyebrow">Vietnamese support for Kobo</p>
           <h1 id="hero-title">Make your Kobo feel at home in Vietnamese.</h1>
-          <p class="lead">Add Vietnamese fonts, an optional interface language, and English–Vietnamese dictionaries with a guided installer that runs on your computer.</p>
+          <p class="lead">Connect your Kobo, choose the components you need, and stage them directly on the device from this page.</p>
           <div class="hero-actions">
-            <a class="button primary" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/archive/refs/heads/vercel.zip">Download installer <span aria-hidden="true">↓</span></a>
+            <a class="button primary" href="#patch">Patch my Kobo <span aria-hidden="true">→</span></a>
             <a class="button secondary" href="#how-it-works">See the steps</a>
           </div>
           <p class="download-note">Free and open source · Requires Python 3 · macOS, Windows, or Linux</p>
@@ -38,21 +38,44 @@
         </aside>
       </section>
 
-      <section class="notice" aria-label="Installation requirement">
+      <section class="notice" aria-label="Browser requirement">
         <span class="notice-icon" aria-hidden="true">i</span>
-        <p><strong>Installation happens on your computer.</strong> This website helps you download the installer. Open it locally so it can access your Kobo over USB.</p>
+        <p><strong>Use Chrome or Edge over HTTPS.</strong> Your browser will ask you to choose the mounted Kobo folder. Nothing is written until you select the device and press Patch.</p>
+      </section>
+
+      <section class="patch-panel" id="patch" aria-labelledby="patch-title">
+        <div class="patch-heading">
+          <p class="eyebrow">Browser patcher</p>
+          <h2 id="patch-title">Patch your Kobo directly</h2>
+          <p>Connect the Kobo by USB, tap <strong>Connect</strong> on its screen, then choose the Kobo drive below. Select any combination of components; each option is installed independently.</p>
+        </div>
+        <div class="patch-status" id="device-status" role="status" aria-live="polite">No Kobo folder selected.</div>
+        <div class="patch-actions">
+          <button class="button primary" id="choose-kobo" type="button">Choose Kobo folder</button>
+          <button class="button secondary" id="patch-selected" type="button" disabled>Patch selected items</button>
+        </div>
+        <p class="support-warning" id="browser-warning" hidden>Direct browser patching needs Chrome or Edge on an HTTPS site. Use the <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">desktop installer</a> if this browser does not support folder access.</p>
+        <fieldset class="component-list">
+          <legend>Choose components</legend>
+          <label class="component-option"><input type="checkbox" name="component" value="fonts" checked><span><strong>Vietnamese fonts</strong><small>Font overlay for firmware 4.x</small></span></label>
+          <label class="component-option"><input type="checkbox" name="component" value="language"><span><strong>Vietnamese interface language</strong><small>Adds Extra: vi on supported firmware 4.x</small></span></label>
+          <label class="component-option"><input type="checkbox" name="component" value="kobo-dictionary"><span><strong>Kobo English–Vietnamese dictionary</strong><small>Installs to <code>.kobo/custom-dict</code></small></span></label>
+          <label class="component-option"><input type="checkbox" name="component" value="koreader-dictionary"><span><strong>KOReader English–Vietnamese dictionary</strong><small>Requires an existing KOReader installation</small></span></label>
+        </fieldset>
+        <div class="progress-wrap" id="patch-progress" hidden><div class="progress-bar"><span id="progress-bar-fill"></span></div><p id="progress-label"></p></div>
+        <ol class="aftercare"><li>Wait until the page says the patch is staged.</li><li>Use Finder or your file manager to eject the Kobo manually.</li><li>Unplug the cable and let the Kobo restart. The browser cannot eject USB devices.</li></ol>
       </section>
 
       <section class="section" id="how-it-works" aria-labelledby="steps-title">
         <p class="eyebrow">A simple path</p>
         <h2 id="steps-title">Install in four steps</h2>
         <div class="steps">
-          <article class="step"><span class="step-number">01</span><h3>Download and open</h3><p>Extract the ZIP. On macOS, run <code>zsh start.command</code>. On Windows, double-click <code>start.bat</code>. On Linux, run <code>python3 server.py</code>.</p></article>
+          <article class="step"><span class="step-number">01</span><h3>Open in Chrome or Edge</h3><p>Use the deployed HTTPS page. Direct folder access is currently supported by Chromium-based browsers.</p></article>
           <article class="step"><span class="step-number">02</span><h3>Connect your Kobo</h3><p>Connect it with a USB cable, then tap <strong>Connect</strong> on the Kobo screen. Check that the installer shows the correct device.</p></article>
-          <article class="step"><span class="step-number">03</span><h3>Choose and install</h3><p>Use <strong>Install Vietnamese support</strong> for the recommended set, or open Advanced options to select individual components. Keep the cable connected until installation says Complete.</p></article>
+          <article class="step"><span class="step-number">03</span><h3>Choose and patch</h3><p>Select any independent components and press <strong>Patch selected items</strong>. Keep the cable connected until the page says Staged.</p></article>
           <article class="step"><span class="step-number">04</span><h3>Eject and restart</h3><p>Eject the Kobo in Finder or your file manager. Wait for it to disappear, unplug the cable, and let the Kobo finish restarting.</p></article>
         </div>
-        <p class="footnote">Fonts and interface language require Kobo firmware 4.x. The KOReader dictionary requires KOReader to be installed first.</p>
+        <p class="footnote">Fonts and interface language require Kobo firmware 4.x. The KOReader dictionary requires KOReader to be installed first. Keep a backup before modifying any device.</p>
       </section>
 
       <section class="section credits" id="credits" aria-labelledby="credits-title">
@@ -62,7 +85,8 @@
         <a class="text-link" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">View installer source and full documentation <span aria-hidden="true">↗</span></a>
       </section>
     </main>
-    <footer>Independent community project · Your Kobo data stays on your computer.</footer>
+    <footer>Independent community project · The page only writes to the Kobo folder you explicitly select.</footer>
   </div>
+  <script src="/patcher.js" defer></script>
 </body>
 </html>
