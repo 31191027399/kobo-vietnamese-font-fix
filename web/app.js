@@ -1,5 +1,5 @@
 const $ = (selector) => document.querySelector(selector);
-const state = { status: null, busy: false, selectedDevice: null, polling: false, deviceKey: null, actionId: null, actionTimer: null };
+const state = { status: null, busy: false, selectedDevice: null, polling: false, deviceKey: null, actionId: null, actionTimer: null, lastAction: null };
 
 const translations = {
   en: {
@@ -35,6 +35,39 @@ Object.assign(translations.vi, {
 translations.en.eject_text = "After installation completes, close any open files, eject the Kobo from Finder or your file manager, then unplug the cable and let the Kobo restart. The font and language pack activate during that restart.";
 translations.vi.eject_text = "Sau khi cài xong, hãy đóng các tệp đang mở, tháo Kobo bằng Finder hoặc trình quản lý tệp, rồi rút cáp và chờ Kobo khởi động lại. Font và gói ngôn ngữ sẽ được áp dụng khi khởi động lại.";
 
+Object.assign(translations.en, {
+  install_support_text: "Install Vietnamese fonts, language support, and the Kobo dictionary. The KOReader dictionary is included when KOReader is present. Keep the Kobo connected until installation completes.",
+  install_one: "Choose individual components",
+  install_one_text: "Select one or more components. Fonts and language support can be installed separately.",
+  eject_text: "When installation says Complete, close open Kobo files. Eject the device in Finder or your file manager, wait for it to disappear, then unplug the cable. Let the Kobo finish restarting.",
+  installed_prefix: "Installed: {items}. Eject the Kobo using your computer, then let it restart if a package was staged.",
+  install_waiting: "Connect your Kobo to enable installation.",
+  install_ready: "Ready to install on the connected Kobo.",
+  install_unsupported: "Fonts and language support require Kobo firmware 4.x. You can still install dictionaries from Advanced options.",
+  install_running: "Keep the Kobo connected until installation completes.",
+  package_missing: "The font package will be prepared during installation.",
+  kobo_connected: "Kobo ready",
+  kobo_unsupported: "Check Kobo firmware",
+  sources: "Sources:",
+  request_error: "Could not reach the local installer: {message}",
+});
+Object.assign(translations.vi, {
+  install_support_text: "Cài font, gói ngôn ngữ và từ điển Kobo. Nếu đã có KOReader, bộ cài cũng thêm từ điển KOReader. Giữ kết nối USB đến khi cài xong.",
+  install_one: "Chọn từng thành phần",
+  install_one_text: "Chọn một hoặc nhiều thành phần. Có thể cài font và gói ngôn ngữ riêng biệt.",
+  eject_text: "Khi trạng thái báo Hoàn tất, đóng các tệp Kobo đang mở. Tháo thiết bị bằng Finder hoặc trình quản lý tệp, chờ thiết bị biến mất rồi rút cáp. Chờ Kobo khởi động lại xong.",
+  installed_prefix: "Đã cài: {items}. Hãy tháo Kobo an toàn trên máy tính và chờ khởi động lại nếu đã chép gói cài đặt.",
+  install_waiting: "Kết nối Kobo để bật nút cài đặt.",
+  install_ready: "Sẵn sàng cài đặt trên Kobo đã kết nối.",
+  install_unsupported: "Font và gói ngôn ngữ cần firmware Kobo 4.x. Bạn vẫn có thể cài từ điển trong Tùy chọn nâng cao.",
+  install_running: "Giữ kết nối USB đến khi cài xong.",
+  package_missing: "Gói font sẽ được chuẩn bị khi cài đặt.",
+  kobo_connected: "Kobo đã sẵn sàng",
+  kobo_unsupported: "Kiểm tra firmware Kobo",
+  sources: "Nguồn:",
+  request_error: "Không thể kết nối với bộ cài cục bộ: {message}",
+});
+
 state.locale = localStorage.getItem("kobo-installer-language") || "en";
 function t(key, values = {}) {
   let value = translations[state.locale]?.[key] || translations.en[key] || key;
@@ -52,10 +85,12 @@ function applyLanguage(locale = state.locale) {
   document.querySelectorAll("[data-i18n-html]").forEach((element) => { element.innerHTML = t(element.dataset.i18nHtml); });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => { element.placeholder = t(element.dataset.i18nPlaceholder); });
   if (state.status) renderStatus(state.status);
-  $("#action-phase").textContent = t("ready");
-  if (!state.actionId) {
+  if (!state.actionId && !state.lastAction) {
+    $("#action-phase").textContent = t("ready");
     $("#action-detail").textContent = t("initial_status");
-    $("#log").textContent = t("initial_status");
+  } else if (state.lastAction) {
+    $("#action-phase").textContent = t(`phase_${state.lastAction}`);
+    $("#busy-badge").textContent = t(state.lastAction === "complete" ? "complete" : "needs_attention");
   }
 }
 
@@ -75,8 +110,9 @@ function setLog(message, kind = "ready") {
 
 function setProgress(action) {
   if (!action) return;
-  const phase = t(`phase_${action.phase}`) || action.phase || t("working");
-  const detail = action.phase === "complete" ? action.message || phase : t(`phase_${action.phase}`) || action.message || phase;
+  const phaseKey = `phase_${action.phase}`;
+  const phase = translations[state.locale]?.[phaseKey] || translations.en[phaseKey] || action.phase || t("working");
+  const detail = action.message || phase;
   const phaseEl = $("#action-phase");
   const percentEl = $("#action-percent");
   const progressEl = $("#action-progress");
@@ -85,7 +121,7 @@ function setProgress(action) {
   $("#action-detail").textContent = detail;
   progressEl.classList.toggle("indeterminate", action.progress == null && !["complete", "error"].includes(action.phase));
   if (action.progress == null) {
-    percentEl.textContent = t("working") + "…";
+    percentEl.textContent = action.phase === "error" ? "" : t("working") + "…";
     track.removeAttribute("aria-valuenow");
   } else {
     const value = Math.max(0, Math.min(100, Number(action.progress)));
@@ -175,7 +211,7 @@ function renderStatus(status) {
     }
   } else {
     dot.classList.add(status.firmwareSupported ? "connected" : "unsupported");
-    $("#device-title").textContent = status.firmwareSupported ? "Kobo ready" : "Firmware needs review";
+    $("#device-title").textContent = status.firmwareSupported ? t("kobo_connected") : t("kobo_unsupported");
     const parts = [`Firmware ${status.firmware || "unknown"}`];
     if (status.koreader) parts.push(`KOReader ${status.koreader}`);
     $("#device-detail").textContent = status.firmwareSupported ? `${parts.join(" · ")}. ${t("kobo_ready")}` : `${parts.join(" · ")}. ${t("firmware_review")}`;
@@ -220,7 +256,8 @@ function updateButtons() {
   const supported = Boolean(state.status?.firmwareSupported);
   const selected = [...document.querySelectorAll('input[name="component"]:checked')].map((input) => input.value);
   $("#install-all").disabled = state.busy || !connected || !supported;
-  $("#install-custom").disabled = state.busy || !connected || selected.length === 0 || (selected.includes("fonts") && !supported);
+  $("#install-custom").disabled = state.busy || !connected || selected.length === 0 || (selected.some((item) => item === "fonts" || item === "language") && !supported);
+  $("#install-help").textContent = state.busy ? t("install_running") : !connected ? t("install_waiting") : !supported ? t("install_unsupported") : t("install_ready");
   $("#open-folder").disabled = state.busy || !connected;
   $("#choose-folder").disabled = state.busy;
   $("#use-folder").disabled = state.busy;
@@ -252,13 +289,14 @@ async function refresh() {
     const query = state.selectedDevice ? `?device=${encodeURIComponent(state.selectedDevice)}` : "";
     const response = await fetch(`/api/status${query}`, { cache: "no-store" });
     renderStatus((await response.json()).status);
-  } catch (error) { setLog(`Could not reach the local installer: ${error.message}`, "error");
+  } catch (error) { setLog(t("request_error", { message: error.message }), "error");
   } finally { state.polling = false; }
 }
 
 async function runAction(label, action, path, body = {}) {
   const actionId = (window.crypto?.randomUUID && window.crypto.randomUUID()) || `${Date.now()}-${Math.random()}`;
   state.actionId = actionId;
+  state.lastAction = null;
   state.busy = true;
   updateButtons();
   beginProgress(label);
@@ -268,9 +306,11 @@ async function runAction(label, action, path, body = {}) {
     const result = await request(path, { method: "POST", headers: { "Content-Type": "application/json", "X-Kobo-Installer": "1", "X-Kobo-Action": actionId }, body: JSON.stringify(body) });
     setProgress({ phase: "complete", progress: 100, message: formatResult(action, result) });
     setLog(formatResult(action, result), "success");
+    state.lastAction = "complete";
   } catch (error) {
     setProgress({ phase: "error", progress: null, message: error.message });
     setLog(error.message, "error");
+    state.lastAction = "error";
   } finally {
     state.actionId = null;
     if (state.actionTimer) clearTimeout(state.actionTimer);

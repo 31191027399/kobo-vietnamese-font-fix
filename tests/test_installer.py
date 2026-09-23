@@ -435,6 +435,40 @@ class InstallerTests(unittest.TestCase):
             install.assert_called_once_with(device.resolve(), None)
             self.assertEqual(result["results"]["language"]["message"], "language staged")
 
+    def test_language_only_package_stages_with_verified_checksum(self):
+        with tempfile.TemporaryDirectory() as value:
+            root = Path(value)
+            device = self.make_device(root)
+            package = root / "KoboRoot.tgz"
+            checksum = root / "KoboRoot.tgz.sha256"
+            metadata = root / "package.json"
+            with mock.patch.object(core, "NICKELMENU_PACKAGE", package), mock.patch.object(
+                core, "NICKELMENU_CHECKSUM", checksum
+            ), mock.patch.object(core, "NICKELMENU_METADATA", metadata), mock.patch.object(
+                core, "BACKUPS", root / "backups"
+            ):
+                result = core.install_selected(["language"], str(device))
+            staged = device / ".kobo" / "KoboRoot.tgz"
+            self.assertEqual(staged.read_bytes(), package.read_bytes())
+            self.assertEqual(result["results"]["language"]["sha256"], core.sha256_file(staged))
+            with tarfile.open(staged, "r:gz") as archive:
+                names = {member.name for member in archive if member.isfile()}
+            self.assertEqual(names, set(core.LANGUAGE_ASSETS))
+
+    def test_install_progress_does_not_finish_during_package_build(self):
+        with tempfile.TemporaryDirectory() as value:
+            device = self.make_device(Path(value))
+            phases = []
+
+            def build(progress, **_kwargs):
+                progress("complete", 100, "Package built")
+
+            with mock.patch.object(core, "build_font_package", side_effect=build), mock.patch.object(
+                core, "install_fonts", return_value={"message": "staged"}
+            ), mock.patch.object(core, "_prepare_dictionary_assets"):
+                core.install_selected(["fonts"], str(device), progress=lambda phase, *_args, **_details: phases.append(phase))
+            self.assertNotIn("complete", phases)
+
     def test_existing_device_install_flow(self):
         with tempfile.TemporaryDirectory() as value:
             root = Path(value)

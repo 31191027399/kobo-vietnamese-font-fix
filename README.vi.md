@@ -15,10 +15,10 @@ Công cụ này **không cài đặt hoặc cập nhật** NickelMenu, KOReader,
 1. Nếu muốn dùng NickelMenu hoặc KOReader, hãy cài chúng trước bằng [KoboPatch Web UI](https://kp.nicoverbruggen.be) của Nico Verbruggen.
 2. Tháo thiết bị an toàn và chờ Kobo cài đặt, khởi động lại hoàn tất. Không chạy hai bộ cài trong cùng một lần kết nối USB vì cả hai có thể tạo tệp `.kobo/KoboRoot.tgz`.
 3. Kết nối lại Kobo, khởi động bộ cài này và chọn **Install Vietnamese support**.
-4. Tháo thiết bị an toàn một lần nữa, rút cáp và chờ Kobo khởi động lại để áp dụng font và gói ngôn ngữ.
+4. Chờ bộ cài báo **Hoàn tất**. Đóng các tệp Kobo đang mở, tháo thiết bị bằng Finder hoặc trình quản lý tệp, chờ thiết bị biến mất rồi rút cáp. Chờ Kobo khởi động lại xong.
 5. Nếu Kobo chưa tự chọn tiếng Việt, vào **More → Settings → Language and dictionaries → Select your Language → Extra: vi**.
 
-KOReader là tùy chọn. Nếu phát hiện KOReader, nút cài đặt chính sẽ cài thêm từ điển cho KOReader. Nếu không có KOReader, công cụ chỉ cài bản sửa font và từ điển cho trình đọc mặc định của Kobo.
+KOReader là tùy chọn. Nếu phát hiện KOReader, nút cài đặt chính sẽ cài thêm từ điển cho KOReader. Nếu không có KOReader, công cụ cài font, gói ngôn ngữ và từ điển cho trình đọc mặc định của Kobo.
 
 ## Khởi động bộ cài
 
@@ -54,9 +54,9 @@ Trình duyệt sẽ mở địa chỉ <http://127.0.0.1:8765>. Kết nối Kobo 
 ## Cách sử dụng
 
 1. Kiểm tra thẻ trạng thái hiển thị **Kobo ready** và đúng phiên bản firmware.
-2. Chọn **Install Vietnamese support**.
+2. Chọn **Install Vietnamese support** (hoặc **Cài hỗ trợ tiếng Việt**).
 3. Chờ trạng thái báo hoàn tất. Không rút cáp trong lúc đang sao chép tệp.
-4. Đóng các tệp Kobo đang mở, tháo Kobo thủ công bằng Finder/trình quản lý tệp, rút cáp và chờ Kobo khởi động lại hoàn toàn. Trang web chỉ hiển thị hướng dẫn; không tự gọi lệnh tháo thiết bị.
+4. Đóng các tệp Kobo đang mở, tháo Kobo bằng Finder/trình quản lý tệp và chờ thiết bị biến mất. Sau đó rút cáp và chờ Kobo khởi động lại hoàn toàn. Trang web chỉ hiển thị hướng dẫn tháo thiết bị.
 
 Muốn chỉ cài một thành phần, mở **Advanced options**, chọn một hoặc nhiều mục sau rồi nhấn **Install selected items**:
 
@@ -64,6 +64,8 @@ Muốn chỉ cài một thành phần, mở **Advanced options**, chọn một h
 - **Vietnamese language pack**: thêm `Extra: vi` vào danh sách ngôn ngữ và cài phần dịch tiếng Việt cho Kobo; có thể cài độc lập không cần bản sửa font.
 - **Kobo dictionary**: từ điển Anh–Việt cho trình đọc mặc định.
 - **KOReader dictionary**: từ điển Anh–Việt cho KOReader; yêu cầu thư mục `.adds/koreader` đã tồn tại.
+
+Các lựa chọn nâng cao ban đầu đều để trống. Chọn thành phần cần cài, nhấn **Install selected items** (hoặc **Cài các mục đã chọn**) và giữ kết nối USB đến khi trạng thái báo **Hoàn tất**. Font và gói ngôn ngữ cần firmware 4.x; có thể cài riêng từ điển trên thiết bị không hỗ trợ hai thành phần đó.
 
 ## Những thay đổi được thực hiện trên Kobo
 
@@ -76,7 +78,7 @@ Tệp dựng sẵn `build/KoboRoot.tgz` chỉ chứa font:
 
 Các font được lấy từ bản phát hành `v20260319` đã xác minh của redphx. Khi chọn **Vietnamese language pack**, bộ cài thêm `trans_vi.qm`, `libtiengviet.so` và hook cấu hình để thêm `Extra: vi` vào danh sách ngôn ngữ Kobo. Gói này không chứa NickelMenu hoặc KOReader.
 
-Bản sửa font và gói ngôn ngữ chỉ được cài trên firmware 4.x. Nếu `.kobo/KoboRoot.tgz` đã tồn tại, công cụ sẽ sao lưu tệp đó trước khi thay thế.
+Bản sửa font và gói ngôn ngữ chỉ được cài trên firmware 4.x. Gói ngôn ngữ có thể được cài riêng không cần font. Nếu `.kobo/KoboRoot.tgz` đã tồn tại, công cụ sẽ sao lưu tệp đó trước khi thay thế.
 
 Nếu muốn cài thêm đầy đủ bàn phím và tính năng tự sửa sau khi cập nhật firmware, hãy sử dụng trực tiếp dự án [Kobo Tiếng Việt](https://github.com/redphx/kobo-tieng-viet) của redphx.
 
@@ -127,3 +129,5 @@ Tùy chọn **Repair a KoboRoot.tgz only** dành cho nhà phát triển. Nó th�
 Dự án này hoạt động độc lập với các dự án nguồn nói trên. Quyền tác giả và điều khoản sử dụng của từng dự án vẫn thuộc về tác giả tương ứng.
 
 Thông tin kỹ thuật và lệnh kiểm thử nằm trong [TECHNICAL-NOTES.md](TECHNICAL-NOTES.md).
+
+Trang tải xuống tĩnh dành cho Vercel được mô tả trong [VERCEL.md](VERCEL.md). Bộ cài vẫn chạy cục bộ trên máy tính của người dùng.

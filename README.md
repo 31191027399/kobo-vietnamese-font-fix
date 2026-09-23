@@ -15,9 +15,9 @@ It does **not** install or update NickelMenu, KOReader, SimpleUI, or other tools
 1. If you want NickelMenu or KOReader, install them first with [KoboPatch Web UI](https://kp.nicoverbruggen.be) by Nico Verbruggen.
 2. Safely eject the Kobo and wait for its installation/restart to finish. Do not run both installers during the same USB session because each may stage a `.kobo/KoboRoot.tgz`.
 3. Reconnect the Kobo, start this installer, and choose **Install Vietnamese support**.
-4. Close any open Kobo files, eject the Kobo manually from Finder/file manager, unplug it, and let it restart to apply the fonts and language pack. The web page provides instructions only; it does not call an eject command.
+4. Wait for **Complete** in the installer. Close open Kobo files, eject the device in Finder or your file manager, wait for it to disappear, then unplug it. Let Kobo finish restarting to apply the fonts and language pack.
 
-KOReader is optional. When it is detected, the main action installs its Vietnamese dictionary too. When it is absent, the installer adds only the font fix and Kobo dictionary.
+KOReader is optional. When it is detected, the main action installs its Vietnamese dictionary too. Otherwise it installs the font fix, Vietnamese language pack, and Kobo dictionary.
 
 ## Start the installer
 
@@ -45,7 +45,7 @@ start.bat
 python3 server.py
 ```
 
-The browser opens at <http://127.0.0.1:8765>. Connect the Kobo by USB and tap **Connect** on its screen. The device card refreshes automatically; it also supports multiple devices and manual folder selection.
+The browser opens at <http://127.0.0.1:8765>. Connect the Kobo by USB and tap **Connect** on its screen. Wait for **Kobo ready** and check the firmware shown in the device card. If the Kobo is not found, use **Check Kobo** or **Choose Kobo folder**. For multiple devices, select the intended Kobo before installing.
 
 ## Exactly what changes
 
@@ -53,7 +53,7 @@ The browser opens at <http://127.0.0.1:8765>. Connect the Kobo by USB and tap **
 
 The advanced font rebuild contains 16 system-font replacements plus four Courier-compatible user fonts. The normal **Install Vietnamese support** action additionally includes the optional language payload from redphx's verified `v20260319` release: `trans_vi.qm`, `libtiengviet.so`, and a small configuration hook that adds `Extra: vi` to Kobo's language list. It has no NickelMenu or KOReader payload.
 
-The installer accepts this package only on firmware 4.x and backs up an existing staged `.kobo/KoboRoot.tgz` before replacing it. After reboot, choose **More → Settings → Language and dictionaries → Select your Language → Extra: vi** if Kobo does not select it automatically. The advanced **Rebuild KoboRoot.tgz** action remains font-only; the normal install action creates a combined font + language package when both are selected, or a language-only package when only the language pack is selected.
+Fonts and language support require firmware 4.x. The installer backs up an existing staged `.kobo/KoboRoot.tgz` before replacing it. After reboot, choose **More → Settings → Language and dictionaries → Select your Language → Extra: vi** if Kobo does not select it automatically. The advanced **Rebuild KoboRoot.tgz** action remains font-only; the normal install action creates a combined font + language package, or a language-only package when only the language pack is selected.
 
 For the complete Vietnamese interface, keyboard, and automatic repair behavior beyond this focused language pack, use the original [Kobo Tiếng Việt](https://github.com/redphx/kobo-tieng-viet) project by redphx.
 
@@ -86,7 +86,7 @@ Open **Advanced options** to install any one of these components independently, 
 - **Kobo dictionary** — for Kobo's built-in reader.
 - **KOReader dictionary** — requires an existing `.adds/koreader` directory.
 
-The advanced selection starts empty so no component is implicitly bundled with another. The source projects are linked directly in the interface and documented in [Credits and provenance](#credits-and-provenance).
+The advanced selection starts empty. Select the components you want and choose **Install selected items**. Keep the USB cable connected until the installer shows **Complete**. A firmware 4.x device is required for fonts and language support; dictionaries can be installed separately. The source projects are linked directly in the interface and documented in [Credits and provenance](#credits-and-provenance).
 
 ## Advanced archive repair
 
@@ -103,3 +103,5 @@ Recovery backups are stored in `backups/`. They may contain device data, so keep
 This project is independent of those upstream projects. Their work remains theirs and is subject to their respective terms.
 
 Developer details and verification commands are in [TECHNICAL-NOTES.md](TECHNICAL-NOTES.md).
+
+The static download site for Vercel is documented in [VERCEL.md](VERCEL.md). Installation still runs locally on the user's computer.
