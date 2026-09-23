@@ -7,8 +7,13 @@
   const progress = $("#patch-progress");
   const progressFill = $("#progress-bar-fill");
   const progressLabel = $("#progress-label");
+  const deviceDetails = $("#device-details");
+  const deviceModel = $("#device-model");
+  const deviceFirmware = $("#device-firmware");
+  const deviceCompatibility = $("#device-compatibility");
   const vi = document.documentElement.lang === "vi";
   let koboRoot = null;
+  let deviceInfo = null;
 
   const text = {
     unsupported: vi ? "Trình duyệt này chưa hỗ trợ chọn thư mục. Hãy dùng Chrome hoặc Edge trên HTTPS." : "This browser cannot choose a folder. Use Chrome or Edge on HTTPS.",
@@ -20,6 +25,9 @@
     done: vi ? "Đã cài xong. Hãy tháo Kobo an toàn rồi rút cáp." : "Patch staged. Eject the Kobo safely, then unplug the cable.",
     failed: vi ? "Không thể cài: " : "Patch failed: ",
     backup: vi ? "Đã sao lưu KoboRoot.tgz cũ." : "Backed up the existing KoboRoot.tgz.",
+    firmwareUnknown: vi ? "Không đọc được phiên bản firmware; chỉ có thể tiếp tục với từ điển." : "Firmware version could not be read; only dictionary components can continue.",
+    firmwareUnsupported: vi ? "Gói font và giao diện này chỉ dành cho firmware Kobo 4.x. Hãy kiểm tra phiên bản trước khi cài." : "The font and language packages are for Kobo firmware 4.x only. Check the firmware before installing.",
+    firmwareSupported: vi ? "Firmware 4.x phù hợp với gói font và giao diện này." : "Firmware 4.x matches the font and language packages.",
   };
 
   const setProgress = (value, label) => {
@@ -91,6 +99,23 @@
     return response.blob();
   };
 
+  const inspectKobo = async (handle) => {
+    const kobo = await handle.getDirectoryHandle(".kobo");
+    const versionHandle = await kobo.getFileHandle("version");
+    const raw = await (await versionHandle.getFile()).text();
+    const model = raw.split(",", 1)[0].trim() || "Kobo";
+    const match = raw.match(/\b\d+\.\d+\.\d+\b/g);
+    const firmware = match ? match[match.length - 1] : null;
+    const supported = Boolean(firmware && firmware.startsWith("4."));
+    deviceInfo = { model, firmware, supported };
+    deviceDetails.hidden = false;
+    deviceDetails.dataset.state = supported ? "ok" : "warning";
+    deviceModel.textContent = model;
+    deviceFirmware.textContent = firmware || (vi ? "Không xác định" : "Unknown");
+    deviceCompatibility.textContent = firmware ? (supported ? text.firmwareSupported : text.firmwareUnsupported) : text.firmwareUnknown;
+    return kobo;
+  };
+
   const writeKoboDictionary = async (root) => {
     const directory = await getDirectory(root, ".kobo/custom-dict", true);
     await writeBytes(directory, "dicthtml-en-vi.zip", await fetchAsset("tudien-kobo-en-vi.zip"));
@@ -116,6 +141,7 @@
       setProgress(5, text.writing);
       const kobo = await koboRoot.getDirectoryHandle(".kobo");
       const roots = selected.filter((item) => item === "fonts" || item === "language");
+      if (roots.length && (!deviceInfo || !deviceInfo.supported)) throw new Error(deviceInfo?.firmware ? text.firmwareUnsupported : text.firmwareUnknown);
       if (roots.length) {
         await backupKoboRoot(kobo);
         const packageName = roots.length === 2 ? "KoboRoot-combined.tgz" : `KoboRoot-${roots[0]}.tgz`;
@@ -145,13 +171,14 @@
     if (!("showDirectoryPicker" in window)) { warning.hidden = false; setStatus(text.unsupported, "error"); return; }
     try {
       const handle = await window.showDirectoryPicker({ mode: "readwrite", id: "kobo-root" });
-      const kobo = await handle.getDirectoryHandle(".kobo");
-      await kobo.getFileHandle("version");
+      await inspectKobo(handle);
       koboRoot = handle;
       setStatus(text.selected, "success");
       patchButton.disabled = false;
       warning.hidden = true;
     } catch (error) {
+      deviceInfo = null;
+      deviceDetails.hidden = true;
       if (error.name !== "AbortError") setStatus(text.wrongFolder, "error");
       else setStatus(text.cancelled);
       patchButton.disabled = true;

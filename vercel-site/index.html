@@ -43,6 +43,16 @@
         <p><strong>Use Chrome or Edge over HTTPS.</strong> Your browser will ask you to choose the mounted Kobo folder. Nothing is written until you select the device and press Patch.</p>
       </section>
 
+      <section class="project-notice" aria-label="Project status">
+        <strong>Open-source hobby project</strong>
+        <p>This community tool is independent and is not affiliated with, sponsored by, or endorsed by Rakuten Kobo Inc. See the <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">source code</a> and the original <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI workflow</a>.</p>
+      </section>
+
+      <section class="risk-notice" aria-label="Important safety notice">
+        <strong>Back up before patching</strong>
+        <p>These files can affect Kobo features and a firmware update may remove the changes. Copy your books, notes, and any important files first. If the Kobo becomes unusable, follow <a href="https://help.kobo.com/hc/en-us/articles/360017605314" target="_blank" rel="noreferrer">Kobo’s manual reset guide</a>; a reset can remove books, annotations, settings, and account data.</p>
+      </section>
+
       <section class="section" id="how-it-works" aria-labelledby="steps-title">
         <p class="eyebrow">A simple path</p>
         <h2 id="steps-title">Install in four steps</h2>
@@ -62,6 +72,11 @@
           <p>Connect the Kobo by USB, tap <strong>Connect</strong> on its screen, then choose the Kobo drive below. Select any combination of components; each option is installed independently.</p>
         </div>
         <div class="patch-status" id="device-status" role="status" aria-live="polite">No Kobo folder selected.</div>
+        <div class="device-details" id="device-details" hidden>
+          <div><span>Detected Kobo model</span><strong id="device-model">—</strong></div>
+          <div><span>Detected firmware</span><strong id="device-firmware">—</strong></div>
+          <p id="device-compatibility"></p>
+        </div>
         <div class="patch-actions">
           <button class="button primary" id="choose-kobo" type="button">Choose Kobo folder</button>
           <button class="button secondary" id="patch-selected" type="button" disabled>Patch selected items</button>

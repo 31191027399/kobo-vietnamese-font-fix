@@ -43,6 +43,16 @@
         <p><strong>Dùng Chrome hoặc Edge trên HTTPS.</strong> Trình duyệt sẽ yêu cầu bạn chọn thư mục Kobo đang được gắn USB. Chỉ ghi dữ liệu sau khi bạn chọn thiết bị và bấm Cài.</p>
       </section>
 
+      <section class="project-notice" aria-label="Trạng thái dự án">
+        <strong>Dự án mã nguồn mở dành cho người yêu thích</strong>
+        <p>Công cụ cộng đồng này độc lập, không liên kết, không được tài trợ hoặc chứng nhận bởi Rakuten Kobo Inc. Xem <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">mã nguồn</a> và <a href="https://github.com/nicoverbruggen/kobopatch-webui">quy trình KoboPatch Web UI gốc</a>.</p>
+      </section>
+
+      <section class="risk-notice" aria-label="Cảnh báo an toàn quan trọng">
+        <strong>Hãy sao lưu trước khi cài</strong>
+        <p>Các tệp này có thể ảnh hưởng đến tính năng Kobo và bản cập nhật firmware có thể xóa thay đổi. Hãy sao chép sách, ghi chú và tệp quan trọng trước. Nếu Kobo gặp lỗi, hãy xem <a href="https://help.kobo.com/hc/en-us/articles/360017605314" target="_blank" rel="noreferrer">hướng dẫn reset thủ công của Kobo</a>; reset có thể xóa sách, chú thích, cài đặt và dữ liệu tài khoản.</p>
+      </section>
+
       <section class="section" id="cach-cai" aria-labelledby="steps-title">
         <p class="eyebrow">Bốn bước đơn giản</p>
         <h2 id="steps-title">Cách cài đặt</h2>
@@ -62,6 +72,11 @@
           <p>Cắm Kobo bằng USB, chọn <strong>Connect</strong> trên màn hình Kobo, rồi chọn ổ Kobo bên dưới. Mỗi thành phần có thể cài độc lập.</p>
         </div>
         <div class="patch-status" id="device-status" role="status" aria-live="polite">Chưa chọn thư mục Kobo.</div>
+        <div class="device-details" id="device-details" hidden>
+          <div><span>Model Kobo phát hiện</span><strong id="device-model">—</strong></div>
+          <div><span>Firmware phát hiện</span><strong id="device-firmware">—</strong></div>
+          <p id="device-compatibility"></p>
+        </div>
         <div class="patch-actions">
           <button class="button primary" id="choose-kobo" type="button">Chọn thư mục Kobo</button>
           <button class="button secondary" id="patch-selected" type="button" disabled>Cài các mục đã chọn</button>
