@@ -38,19 +38,21 @@
         </aside>
       </section>
 
-      <section class="notice" aria-label="Browser requirement">
-        <span class="notice-icon" aria-hidden="true">i</span>
-        <p><strong>Use Chrome or Edge over HTTPS.</strong> Your browser will ask you to choose the mounted Kobo folder. Nothing is written until you select the device and press Patch.</p>
-      </section>
-
-      <section class="project-notice" aria-label="Project status">
-        <strong>Open-source hobby project</strong>
-        <p>This community tool is independent and is not affiliated with, sponsored by, or endorsed by Rakuten Kobo Inc. See the <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">source code</a> and the original <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI workflow</a>.</p>
-      </section>
-
-      <section class="risk-notice" aria-label="Important safety notice">
-        <strong>Back up before patching</strong>
-        <p>These files can affect Kobo features and a firmware update may remove the changes. Copy your books, notes, and any important files first. If the Kobo becomes unusable, follow <a href="https://help.kobo.com/hc/en-us/articles/360017605314" target="_blank" rel="noreferrer">Kobo’s manual reset guide</a>; a reset can remove books, annotations, settings, and account data.</p>
+      <section class="section prep-section" aria-labelledby="prep-title">
+        <p class="eyebrow">Before you begin</p>
+        <h2 id="prep-title">Prepare your Kobo</h2>
+        <div class="prep-cards">
+          <article class="prep-card prep-browser">
+            <span class="prep-label">Browser requirement</span>
+            <h3>Use Chrome or Edge over HTTPS</h3>
+            <p>Your browser will ask you to choose the mounted Kobo folder. Nothing is written until you select the device and press Patch.</p>
+          </article>
+          <article class="prep-card prep-backup">
+            <span class="prep-label">Protect your data</span>
+            <h3>Back up before patching</h3>
+            <p>These files can affect Kobo features and a firmware update may remove the changes. Copy your books, notes, and any important files first. If the Kobo becomes unusable, follow <a href="https://help.kobo.com/hc/en-us/articles/360017605314" target="_blank" rel="noreferrer">Kobo’s manual reset guide</a>; a reset can remove books, annotations, settings, and account data.</p>
+          </article>
+        </div>
       </section>
 
       <section class="section" id="how-it-works" aria-labelledby="steps-title">
@@ -97,7 +99,16 @@
       <section class="section credits" id="credits" aria-labelledby="credits-title">
         <p class="eyebrow">Built on original work</p>
         <h2 id="credits-title">Sources and credits</h2>
-        <p>Fonts and language support come from <a href="https://github.com/redphx/kobo-tieng-viet">Kobo Tiếng Việt by redphx</a>. Dictionaries come from <a href="https://github.com/redphx/tudien">redphx/tudien</a>. For optional Kobo tools, see <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI by Nico Verbruggen</a>.</p>
+        <div class="credit-cards">
+          <article class="credit-card">
+            <h3>Open-source hobby project</h3>
+            <p>This community tool is independent and is not affiliated with, sponsored by, or endorsed by Rakuten Kobo Inc. See the <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">source code</a> and the original <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI workflow</a>.</p>
+          </article>
+          <article class="credit-card">
+            <h3>Original sources</h3>
+            <p>Fonts and language support come from <a href="https://github.com/redphx/kobo-tieng-viet">Kobo Tiếng Việt by redphx</a>. Dictionaries come from <a href="https://github.com/redphx/tudien">redphx/tudien</a>. For optional Kobo tools, see <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI by Nico Verbruggen</a>.</p>
+          </article>
+        </div>
         <a class="text-link" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">View installer source and full documentation <span aria-hidden="true">↗</span></a>
       </section>
     </main>

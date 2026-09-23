@@ -38,19 +38,21 @@
         </aside>
       </section>
 
-      <section class="notice" aria-label="Yêu cầu trình duyệt">
-        <span class="notice-icon" aria-hidden="true">i</span>
-        <p><strong>Dùng Chrome hoặc Edge trên HTTPS.</strong> Trình duyệt sẽ yêu cầu bạn chọn thư mục Kobo đang được gắn USB. Chỉ ghi dữ liệu sau khi bạn chọn thiết bị và bấm Cài.</p>
-      </section>
-
-      <section class="project-notice" aria-label="Trạng thái dự án">
-        <strong>Dự án mã nguồn mở dành cho người yêu thích</strong>
-        <p>Công cụ cộng đồng này độc lập, không liên kết, không được tài trợ hoặc chứng nhận bởi Rakuten Kobo Inc. Xem <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">mã nguồn</a> và <a href="https://github.com/nicoverbruggen/kobopatch-webui">quy trình KoboPatch Web UI gốc</a>.</p>
-      </section>
-
-      <section class="risk-notice" aria-label="Cảnh báo an toàn quan trọng">
-        <strong>Hãy sao lưu trước khi cài</strong>
-        <p>Các tệp này có thể ảnh hưởng đến tính năng Kobo và bản cập nhật firmware có thể xóa thay đổi. Hãy sao chép sách, ghi chú và tệp quan trọng trước. Nếu Kobo gặp lỗi, hãy xem <a href="https://help.kobo.com/hc/en-us/articles/360017605314" target="_blank" rel="noreferrer">hướng dẫn reset thủ công của Kobo</a>; reset có thể xóa sách, chú thích, cài đặt và dữ liệu tài khoản.</p>
+      <section class="section prep-section" aria-labelledby="prep-title">
+        <p class="eyebrow">Trước khi bắt đầu</p>
+        <h2 id="prep-title">Chuẩn bị Kobo</h2>
+        <div class="prep-cards">
+          <article class="prep-card prep-browser">
+            <span class="prep-label">Yêu cầu trình duyệt</span>
+            <h3>Dùng Chrome hoặc Edge trên HTTPS</h3>
+            <p>Trình duyệt sẽ yêu cầu bạn chọn thư mục Kobo đang được gắn USB. Chỉ ghi dữ liệu sau khi bạn chọn thiết bị và bấm Cài.</p>
+          </article>
+          <article class="prep-card prep-backup">
+            <span class="prep-label">Bảo vệ dữ liệu</span>
+            <h3>Hãy sao lưu trước khi cài</h3>
+            <p>Các tệp này có thể ảnh hưởng đến tính năng Kobo và bản cập nhật firmware có thể xóa thay đổi. Hãy sao chép sách, ghi chú và tệp quan trọng trước. Nếu Kobo gặp lỗi, hãy xem <a href="https://help.kobo.com/hc/en-us/articles/360017605314" target="_blank" rel="noreferrer">hướng dẫn reset thủ công của Kobo</a>; reset có thể xóa sách, chú thích, cài đặt và dữ liệu tài khoản.</p>
+          </article>
+        </div>
       </section>
 
       <section class="section" id="cach-cai" aria-labelledby="steps-title">
@@ -97,7 +99,16 @@
       <section class="section credits" id="nguon" aria-labelledby="credits-title">
         <p class="eyebrow">Ghi công tác giả</p>
         <h2 id="credits-title">Nguồn dự án</h2>
-        <p>Font và gói ngôn ngữ lấy từ <a href="https://github.com/redphx/kobo-tieng-viet">Kobo Tiếng Việt của redphx</a>. Từ điển lấy từ <a href="https://github.com/redphx/tudien">redphx/tudien</a>. Xem <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI của Nico Verbruggen</a> nếu cần cài thêm công cụ cho Kobo.</p>
+        <div class="credit-cards">
+          <article class="credit-card">
+            <h3>Dự án mã nguồn mở dành cho người yêu thích</h3>
+            <p>Công cụ cộng đồng này độc lập, không liên kết, không được tài trợ hoặc chứng nhận bởi Rakuten Kobo Inc. Xem <a href="https://github.com/finnhuynh65/kobo-vietnamese-installer/tree/vercel">mã nguồn</a> và <a href="https://github.com/nicoverbruggen/kobopatch-webui">quy trình KoboPatch Web UI gốc</a>.</p>
+          </article>
+          <article class="credit-card">
+            <h3>Nguồn thành phần</h3>
+            <p>Font và gói ngôn ngữ lấy từ <a href="https://github.com/redphx/kobo-tieng-viet">Kobo Tiếng Việt của redphx</a>. Từ điển lấy từ <a href="https://github.com/redphx/tudien">redphx/tudien</a>. Xem <a href="https://github.com/nicoverbruggen/kobopatch-webui">KoboPatch Web UI của Nico Verbruggen</a> nếu cần cài thêm công cụ cho Kobo.</p>
+          </article>
+        </div>
         <a class="text-link" href="https://github.com/finnhuynh65/kobo-vietnamese-installer/blob/vercel/README.vi.md">Xem mã nguồn và hướng dẫn đầy đủ <span aria-hidden="true">↗</span></a>
       </section>
     </main>
